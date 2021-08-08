@@ -24,10 +24,7 @@ namespace novideo_srgb
         private struct CscV1
         {
             public uint version; // 0x1007C
-
-            public uint
-                contentColorSpace; // built-in degamut/degamma transforms, 1 <= x <= 12, default 2 (probably srgb)
-
+            public uint contentColorSpace; // built-in degamut/degamma transforms, 1 <= x <= 12, default 2 (probably srgb)
             public uint monitorColorSpace; // built-in gamut/gamma transforms, 0 <= x <= 12, default 0 (= csc disabled)
             public uint unknown1; // no idea, set to 0 by both get and set functions -> some type of error code?
             public uint unknown2; // also no idea, not modified by either function -> unused?
