@@ -1,0 +1,38 @@
+﻿<Window x:Class="novideo_srgb.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:novideo_srgb"
+        mc:Ignorable="d"
+        Title="Novideo sRGB" Height="320" Width="500" MinHeight="150" MinWidth="300">
+    <Window.DataContext>
+        <local:MainViewModel />
+    </Window.DataContext>
+    <DockPanel Margin="6">
+        <Button DockPanel.Dock="Bottom" Content="Refresh" Width="75" HorizontalAlignment="Right"
+                Click="MonitorRefreshButton_Click" />
+        <DataGrid ItemsSource="{Binding Monitors}" RowHeaderWidth="0" AutoGenerateColumns="False"
+                  DockPanel.Dock="Bottom" Margin="0,0,0,6">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="#" Binding="{Binding Number}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True" />
+                <DataGridTextColumn Header="GPU" Width="*" Binding="{Binding GPU}" IsReadOnly="True" />
+                <DataGridTemplateColumn Header="Clamped">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"
+                                      IsEnabled="{Binding CanClamp}"
+                                      IsChecked="{Binding Clamped, UpdateSourceTrigger=PropertyChanged}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Margin" Value="0,0,-1,0" />
+                        </Style>
+                    </DataGridTemplateColumn.CellStyle>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</Window>
