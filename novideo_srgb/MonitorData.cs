@@ -1,31 +1,52 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+using System.Linq;
 using System.Windows;
+using EDIDParser;
+using EDIDParser.Descriptors;
+using EDIDParser.Enums;
 using NvAPIWrapper.GPU;
 
 namespace novideo_srgb
 {
-    internal class MonitorData : INotifyPropertyChanged
+    internal class MonitorData
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         private readonly GPUOutput _output;
         private readonly Novideo.ColorSpaceConversion? _csc;
         private bool _clamped;
 
-        public MonitorData(int number, string name, bool clamped, GPUOutput output, Novideo.ColorSpaceConversion? csc)
+        public MonitorData(int number, GPUOutput output)
         {
             Number = number;
-            Name = name;
-            _clamped = clamped;
             _output = output;
-            _csc = csc;
+
+            Edid = Novideo.GetEDID(output);
+
+            Name = Edid.Descriptors.OfType<StringDescriptor>()
+                .FirstOrDefault(x => x.Type == StringDescriptorType.MonitorName)?.Value ?? "<no name>";
+
+            if (Edid.DisplayParameters.IsStandardSRGBColorSpace)
+            {
+                _clamped = true;
+                return;
+            }
+
+            var coords = Edid.DisplayParameters.ChromaticityCoordinates;
+            var colorSpace = new Colorimetry.ColorSpace
+            {
+                red = new Colorimetry.Point {x = coords.RedX, y = coords.RedY},
+                green = new Colorimetry.Point {x = coords.GreenX, y = coords.GreenY},
+                blue = new Colorimetry.Point {x = coords.BlueX, y = coords.BlueY},
+                white = Colorimetry.D65
+            };
+
+            var matrix = Colorimetry.ColorSpaceToColorSpace(Colorimetry.sRGB, colorSpace);
+            _csc = Novideo.MatrixToColorSpaceConversion(matrix);
         }
 
         public int Number { get; }
         public string Name { get; }
+
+        public EDID Edid { get; }
 
         public bool Clamped
         {
@@ -51,7 +72,6 @@ namespace novideo_srgb
                 }
 
                 _clamped = value;
-                OnPropertyChanged();
             }
             get => _clamped;
         }
@@ -59,10 +79,5 @@ namespace novideo_srgb
         public bool CanClamp => _csc != null;
 
         public string GPU => _output.PhysicalGPU.FullName;
-
-        private void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
     }
 }
