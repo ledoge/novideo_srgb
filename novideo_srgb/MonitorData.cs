@@ -29,6 +29,8 @@ namespace novideo_srgb
                 _clamped = true;
                 return;
             }
+            
+            _clamped = Novideo.IsColorSpaceConversionActive(output);
 
             var coords = Edid.DisplayParameters.ChromaticityCoordinates;
             var colorSpace = new Colorimetry.ColorSpace
