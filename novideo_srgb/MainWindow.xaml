@@ -13,7 +13,8 @@
         <Button DockPanel.Dock="Bottom" Content="Refresh" Width="75" HorizontalAlignment="Right"
                 Click="MonitorRefreshButton_Click" />
         <DataGrid ItemsSource="{Binding Monitors}" RowHeaderWidth="0" AutoGenerateColumns="False"
-                  DockPanel.Dock="Bottom" Margin="0,0,0,6" CanUserResizeColumns="False">
+                  DockPanel.Dock="Bottom" Margin="0,0,0,6" CanUserResizeColumns="False" CanUserSortColumns="False"
+                  CanUserReorderColumns="False">
             <DataGrid.Resources>
                 <Style TargetType="{x:Type DataGridCell}">
                     <Setter Property="Template">
