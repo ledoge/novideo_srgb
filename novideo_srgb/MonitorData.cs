@@ -35,13 +35,13 @@ namespace novideo_srgb
             var coords = Edid.DisplayParameters.ChromaticityCoordinates;
             var colorSpace = new Colorimetry.ColorSpace
             {
-                red = new Colorimetry.Point {x = coords.RedX, y = coords.RedY},
-                green = new Colorimetry.Point {x = coords.GreenX, y = coords.GreenY},
-                blue = new Colorimetry.Point {x = coords.BlueX, y = coords.BlueY},
-                white = Colorimetry.D65
+                Red = new Colorimetry.Point {X = coords.RedX, Y = coords.RedY},
+                Green = new Colorimetry.Point {X = coords.GreenX, Y = coords.GreenY},
+                Blue = new Colorimetry.Point {X = coords.BlueX, Y = coords.BlueY},
+                White = Colorimetry.D65
             };
 
-            var matrix = Colorimetry.ColorSpaceToColorSpace(Colorimetry.sRGB, colorSpace);
+            var matrix = Colorimetry.RGBToRGB(Colorimetry.sRGB, colorSpace);
             _csc = Novideo.MatrixToColorSpaceConversion(matrix);
         }
 

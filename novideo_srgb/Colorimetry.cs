@@ -7,63 +7,63 @@ namespace novideo_srgb
     {
         public struct Point
         {
-            public double x;
-            public double y;
+            public double X;
+            public double Y;
         }
 
         public struct ColorSpace
         {
-            public Point red;
-            public Point green;
-            public Point blue;
-            public Point white;
+            public Point Red;
+            public Point Green;
+            public Point Blue;
+            public Point White;
         }
 
-        public static Point D65 = new Point {x = 0.312713, y = 0.329016};
+        public static Point D65 = new Point {X = 0.312713, Y = 0.329016};
 
         public static ColorSpace sRGB = new ColorSpace
         {
-            red = new Point {x = 0.64, y = 0.33},
-            green = new Point {x = 0.3, y = 0.6},
-            blue = new Point {x = 0.15, y = 0.06},
-            white = D65
+            Red = new Point {X = 0.64, Y = 0.33},
+            Green = new Point {X = 0.3, Y = 0.6},
+            Blue = new Point {X = 0.15, Y = 0.06},
+            White = D65
         };
 
         public static ColorSpace P3Display = new ColorSpace
         {
-            red = new Point {x = 0.68, y = 0.32},
-            green = new Point {x = 0.265, y = 0.69},
-            blue = new Point {x = 0.15, y = 0.06},
-            white = D65
+            Red = new Point {X = 0.68, Y = 0.32},
+            Green = new Point {X = 0.265, Y = 0.69},
+            Blue = new Point {X = 0.15, Y = 0.06},
+            White = D65
         };
 
-        public static Matrix<double> ColorSpaceToXYZ(ColorSpace colorSpace)
+        public static Matrix<double> RGBToXYZ(ColorSpace colorSpace)
         {
-            var red = colorSpace.red;
-            var green = colorSpace.green;
-            var blue = colorSpace.blue;
-            var white = colorSpace.white;
+            var red = colorSpace.Red;
+            var green = colorSpace.Green;
+            var blue = colorSpace.Blue;
+            var white = colorSpace.White;
             var whiteXYZ = Matrix<double>.Build.DenseOfArray(new[,]
-                {{white.x / white.y}, {1}, {(1 - white.x - white.y) / white.y}});
+                {{white.X / white.Y}, {1}, {(1 - white.X - white.Y) / white.Y}});
 
             var Mprime = Matrix<double>.Build.DenseOfArray(new[,]
             {
-                {red.x / red.y, green.x / green.y, blue.x / blue.y},
+                {red.X / red.Y, green.X / green.Y, blue.X / blue.Y},
                 {1, 1, 1},
-                {(1 - red.x - red.y) / red.y, (1 - green.x - green.y) / green.y, (1 - blue.x - blue.y) / blue.y}
+                {(1 - red.X - red.Y) / red.Y, (1 - green.X - green.Y) / green.Y, (1 - blue.X - blue.Y) / blue.Y}
             });
 
             return Mprime * Matrix<double>.Build.DiagonalOfDiagonalVector((Mprime.Inverse() * whiteXYZ).Column(0));
         }
 
-        public static Matrix<double> XYZToColorSpace(ColorSpace colorSpace)
+        public static Matrix<double> XYZToRGB(ColorSpace colorSpace)
         {
-            return ColorSpaceToXYZ(colorSpace).Inverse();
+            return RGBToXYZ(colorSpace).Inverse();
         }
 
-        public static Matrix<double> ColorSpaceToColorSpace(ColorSpace from, ColorSpace to)
+        public static Matrix<double> RGBToRGB(ColorSpace from, ColorSpace to)
         {
-            var result = XYZToColorSpace(to) * ColorSpaceToXYZ(from);
+            var result = XYZToRGB(to) * RGBToXYZ(from);
             result.CoerceZero(1e-14);
             return result;
         }
