@@ -32,12 +32,12 @@ namespace novideo_srgb
             
             _clamped = Novideo.IsColorSpaceConversionActive(output);
 
-            var coords = Edid.DisplayParameters.ChromaticityCoordinates;
+            //var coords = Edid.DisplayParameters.ChromaticityCoordinates;
             var colorSpace = new Colorimetry.ColorSpace
             {
-                Red = new Colorimetry.Point {X = coords.RedX, Y = coords.RedY},
-                Green = new Colorimetry.Point {X = coords.GreenX, Y = coords.GreenY},
-                Blue = new Colorimetry.Point {X = coords.BlueX, Y = coords.BlueY},
+                Red = new Colorimetry.Point {X = 0.6883, Y = 0.3030},
+                Green = new Colorimetry.Point {X = 0.1745, Y = 0.7426},
+                Blue = new Colorimetry.Point {X = 0.1438, Y = 0.0619},
                 White = Colorimetry.D65
             };
 
