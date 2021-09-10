@@ -24,11 +24,13 @@ namespace novideo_srgb
             Name = Edid.Descriptors.OfType<StringDescriptor>()
                 .FirstOrDefault(x => x.Type == StringDescriptorType.MonitorName)?.Value ?? "<no name>";
 
+            /*
             if (Edid.DisplayParameters.IsStandardSRGBColorSpace)
             {
                 _clamped = true;
                 return;
             }
+            */
             
             _clamped = Novideo.IsColorSpaceConversionActive(output);
 
