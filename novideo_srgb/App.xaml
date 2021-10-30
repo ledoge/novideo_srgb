@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:novideo_srgb"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Application.Resources>
 </Application>

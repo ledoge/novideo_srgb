@@ -19,9 +19,7 @@ namespace novideo_srgb
 
         private void OverrideButton_click(object sender, System.Windows.RoutedEventArgs e)
         {
-            var monitor = ((FrameworkElement) sender).DataContext as MonitorData;
-            var window = new InfoWindow(monitor.Edid);
-            window.Show();
+            new InfoWindow(((FrameworkElement) sender).DataContext as MonitorData).Show();
         }
     }
 }

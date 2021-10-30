@@ -8,11 +8,12 @@ using NvAPIWrapper.GPU;
 
 namespace novideo_srgb
 {
-    internal class MonitorData
+    public class MonitorData
     {
         private readonly GPUOutput _output;
         private readonly Novideo.ColorSpaceConversion? _csc;
         private bool _clamped;
+        private bool _illegalChromaticies;
 
         public MonitorData(int number, GPUOutput output)
         {
@@ -24,22 +25,27 @@ namespace novideo_srgb
             Name = Edid.Descriptors.OfType<StringDescriptor>()
                 .FirstOrDefault(x => x.Type == StringDescriptorType.MonitorName)?.Value ?? "<no name>";
 
-            if (Edid.DisplayParameters.IsStandardSRGBColorSpace)
+            var coords = Edid.DisplayParameters.ChromaticityCoordinates;
+            var colorSpace = new Colorimetry.ColorSpace
+            {
+                Red = new Colorimetry.Point { X = Math.Round(coords.RedX, 3), Y = Math.Round(coords.RedY, 3) },
+                Green = new Colorimetry.Point { X = Math.Round(coords.GreenX, 3), Y = Math.Round(coords.GreenY, 3) },
+                Blue = new Colorimetry.Point { X = Math.Round(coords.BlueX, 3), Y = Math.Round(coords.BlueY, 3) },
+                White = Colorimetry.D65
+            };
+
+            if (colorSpace.Equals(Colorimetry.sRGB))
             {
                 _clamped = true;
                 return;
             }
-            
-            _clamped = Novideo.IsColorSpaceConversionActive(output);
 
-            var coords = Edid.DisplayParameters.ChromaticityCoordinates;
-            var colorSpace = new Colorimetry.ColorSpace
+            if (Edid.DisplayParameters.IsStandardSRGBColorSpace)
             {
-                Red = new Colorimetry.Point {X = coords.RedX, Y = coords.RedY},
-                Green = new Colorimetry.Point {X = coords.GreenX, Y = coords.GreenY},
-                Blue = new Colorimetry.Point {X = coords.BlueX, Y = coords.BlueY},
-                White = Colorimetry.D65
-            };
+                _illegalChromaticies = true;
+            }
+
+            _clamped = Novideo.IsColorSpaceConversionActive(output);
 
             var matrix = Colorimetry.RGBToRGB(Colorimetry.sRGB, colorSpace);
             _csc = Novideo.MatrixToColorSpaceConversion(matrix);
@@ -60,7 +66,7 @@ namespace novideo_srgb
                 {
                     if (value)
                     {
-                        if (_csc != null) Novideo.SetColorSpaceConversion(_output, (Novideo.ColorSpaceConversion) _csc);
+                        if (_csc != null) Novideo.SetColorSpaceConversion(_output, (Novideo.ColorSpaceConversion)_csc);
                     }
                     else
                     {
@@ -81,5 +87,7 @@ namespace novideo_srgb
         public bool CanClamp => _csc != null;
 
         public string GPU => _output.PhysicalGPU.FullName;
+
+        public bool IllegalChromaticities => _illegalChromaticies;
     }
 }

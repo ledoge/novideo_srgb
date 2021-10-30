@@ -7,33 +7,74 @@ namespace novideo_srgb
     {
         public struct Point
         {
+            public bool Equals(Point other)
+            {
+                return X.Equals(other.X) && Y.Equals(other.Y);
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is Point other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return (X.GetHashCode() * 397) ^ Y.GetHashCode();
+                }
+            }
+
             public double X;
             public double Y;
         }
 
         public struct ColorSpace
         {
+            public bool Equals(ColorSpace other)
+            {
+                return Red.Equals(other.Red) && Green.Equals(other.Green) && Blue.Equals(other.Blue) &&
+                       White.Equals(other.White);
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is ColorSpace other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    var hashCode = Red.GetHashCode();
+                    hashCode = (hashCode * 397) ^ Green.GetHashCode();
+                    hashCode = (hashCode * 397) ^ Blue.GetHashCode();
+                    hashCode = (hashCode * 397) ^ White.GetHashCode();
+                    return hashCode;
+                }
+            }
+
             public Point Red;
             public Point Green;
             public Point Blue;
             public Point White;
         }
 
-        public static Point D65 = new Point {X = 0.3127, Y = 0.3290};
+        public static Point D65 = new Point { X = 0.3127, Y = 0.3290 };
 
         public static ColorSpace sRGB = new ColorSpace
         {
-            Red = new Point {X = 0.64, Y = 0.33},
-            Green = new Point {X = 0.3, Y = 0.6},
-            Blue = new Point {X = 0.15, Y = 0.06},
+            Red = new Point { X = 0.64, Y = 0.33 },
+            Green = new Point { X = 0.3, Y = 0.6 },
+            Blue = new Point { X = 0.15, Y = 0.06 },
             White = D65
         };
 
         public static ColorSpace P3Display = new ColorSpace
         {
-            Red = new Point {X = 0.68, Y = 0.32},
-            Green = new Point {X = 0.265, Y = 0.69},
-            Blue = new Point {X = 0.15, Y = 0.06},
+            Red = new Point { X = 0.68, Y = 0.32 },
+            Green = new Point { X = 0.265, Y = 0.69 },
+            Blue = new Point { X = 0.15, Y = 0.06 },
             White = D65
         };
 
@@ -44,13 +85,13 @@ namespace novideo_srgb
             var blue = colorSpace.Blue;
             var white = colorSpace.White;
             var whiteXYZ = Matrix<double>.Build.DenseOfArray(new[,]
-                {{white.X / white.Y}, {1}, {(1 - white.X - white.Y) / white.Y}});
+                { { white.X / white.Y }, { 1 }, { (1 - white.X - white.Y) / white.Y } });
 
             var Mprime = Matrix<double>.Build.DenseOfArray(new[,]
             {
-                {red.X / red.Y, green.X / green.Y, blue.X / blue.Y},
-                {1, 1, 1},
-                {(1 - red.X - red.Y) / red.Y, (1 - green.X - green.Y) / green.Y, (1 - blue.X - blue.Y) / blue.Y}
+                { red.X / red.Y, green.X / green.Y, blue.X / blue.Y },
+                { 1, 1, 1 },
+                { (1 - red.X - red.Y) / red.Y, (1 - green.X - green.Y) / green.Y, (1 - blue.X - blue.Y) / blue.Y }
             });
 
             return Mprime * Matrix<double>.Build.DiagonalOfDiagonalVector((Mprime.Inverse() * whiteXYZ).Column(0));

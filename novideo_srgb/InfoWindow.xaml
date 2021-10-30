@@ -23,33 +23,46 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Label Grid.Row="0" Grid.Column="0">Red </Label>
-            <TextBox Text="{Binding Coords.RedX, Mode=OneWay}" IsReadOnly="True" Grid.Row="0" Grid.Column="1"
+            <TextBox Text="{Binding Coords.RedX, Mode=OneWay, StringFormat={}{0:#,0.000}}" IsReadOnly="True"
+                     Grid.Row="0" Grid.Column="1"
                      VerticalAlignment="Center" />
             <Label Grid.Row="0" Grid.Column="2">x</Label>
-            <TextBox Text="{Binding Coords.RedY, Mode=OneWay}" IsReadOnly="True" Grid.Row="0" Grid.Column="3"
+            <TextBox Text="{Binding Coords.RedY, Mode=OneWay, StringFormat={}{0:#,0.000}}" IsReadOnly="True"
+                     Grid.Row="0" Grid.Column="3"
                      VerticalAlignment="Center" />
             <Label Grid.Row="0" Grid.Column="4">y</Label>
             <Label Grid.Row="1" Grid.Column="0">Green </Label>
-            <TextBox Text="{Binding Coords.GreenX, Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Grid.Column="1"
+            <TextBox Text="{Binding Coords.GreenX, Mode=OneWay, StringFormat={}{0:#,0.000}}" IsReadOnly="True"
+                     Grid.Row="1" Grid.Column="1"
                      VerticalAlignment="Center" />
             <Label Grid.Row="1" Grid.Column="2">x</Label>
-            <TextBox Text="{Binding Coords.GreenY, Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Grid.Column="3"
+            <TextBox Text="{Binding Coords.GreenY, Mode=OneWay, StringFormat={}{0:#,0.000}}" IsReadOnly="True"
+                     Grid.Row="1" Grid.Column="3"
                      VerticalAlignment="Center" />
             <Label Grid.Row="1" Grid.Column="4">y</Label>
             <Label Grid.Row="2" Grid.Column="0">Blue </Label>
-            <TextBox Text="{Binding Coords.BlueX, Mode=OneWay}" IsReadOnly="True" Grid.Row="2" Grid.Column="1"
+            <TextBox Text="{Binding Coords.BlueX, Mode=OneWay, StringFormat={}{0:#,0.000}}" IsReadOnly="True"
+                     Grid.Row="2" Grid.Column="1"
                      VerticalAlignment="Center" />
             <Label Grid.Row="2" Grid.Column="2">x</Label>
-            <TextBox Text="{Binding Coords.BlueY, Mode=OneWay}" IsReadOnly="True" Grid.Row="2" Grid.Column="3"
+            <TextBox Text="{Binding Coords.BlueY, Mode=OneWay, StringFormat={}{0:#,0.000}}" IsReadOnly="True"
+                     Grid.Row="2" Grid.Column="3"
                      VerticalAlignment="Center" />
             <Label Grid.Row="2" Grid.Column="4">y</Label>
             <Label Grid.Row="3" Grid.Column="0">White </Label>
-            <TextBox Text="{Binding Coords.WhiteX, Mode=OneWay}" IsReadOnly="True" Grid.Row="3" Grid.Column="1"
+            <TextBox Text="{Binding Coords.WhiteX, Mode=OneWay, StringFormat={}{0:#,0.000}}" IsReadOnly="True"
+                     Grid.Row="3" Grid.Column="1"
                      VerticalAlignment="Center" />
             <Label Grid.Row="3" Grid.Column="2">x</Label>
-            <TextBox Text="{Binding Coords.WhiteY, Mode=OneWay}" IsReadOnly="True" Grid.Row="3" Grid.Column="3"
+            <TextBox Text="{Binding Coords.WhiteY, Mode=OneWay, StringFormat={}{0:#,0.000}}" IsReadOnly="True"
+                     Grid.Row="3" Grid.Column="3"
                      VerticalAlignment="Center" />
             <Label Grid.Row="3" Grid.Column="4">y</Label>
         </Grid>
+        <TextBlock Foreground="Red"
+                   Visibility="{Binding Path=IsIllegal, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+            Invalid EDID! sRGB flag is set, <LineBreak />
+            but chromaticities are non-sRGB
+        </TextBlock>
     </StackPanel>
 </Window>

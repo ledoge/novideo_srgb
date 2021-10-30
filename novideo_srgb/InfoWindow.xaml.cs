@@ -4,12 +4,15 @@ namespace novideo_srgb
 {
     public partial class InfoWindow
     {
-        public InfoWindow(EDID edid)
+        public InfoWindow(MonitorData monitor)
         {
-            Coords = edid.DisplayParameters.ChromaticityCoordinates;
+            Coords = monitor.Edid.DisplayParameters.ChromaticityCoordinates;
+            IsIllegal = monitor.IllegalChromaticities;
             InitializeComponent();
         }
 
         public ChromaticityCoordinates Coords { get; }
+        
+        public bool IsIllegal { get; }
     }
 }
