@@ -19,7 +19,7 @@ namespace novideo_srgb
             public Point White;
         }
 
-        public static Point D65 = new Point {X = 0.312713, Y = 0.329016};
+        public static Point D65 = new Point {X = 0.3127, Y = 0.3290};
 
         public static ColorSpace sRGB = new ColorSpace
         {
