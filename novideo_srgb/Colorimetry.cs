@@ -1,6 +1,5 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿// credit to https://mina86.com/2019/srgb-xyz-matrix/ and http://www.brucelindbloom.com/ for the math
 
-// credit to https://mina86.com/2019/srgb-xyz-matrix/ for the math
 namespace novideo_srgb
 {
     public static class Colorimetry
@@ -78,35 +77,62 @@ namespace novideo_srgb
             White = D65
         };
 
-        public static Matrix<double> RGBToXYZ(ColorSpace colorSpace)
+        public static Matrix RGBToXYZ(ColorSpace colorSpace)
         {
             var red = colorSpace.Red;
             var green = colorSpace.Green;
             var blue = colorSpace.Blue;
             var white = colorSpace.White;
-            var whiteXYZ = Matrix<double>.Build.DenseOfArray(new[,]
+            var whiteXYZ = Matrix.FromValues(new[,]
                 { { white.X / white.Y }, { 1 }, { (1 - white.X - white.Y) / white.Y } });
 
-            var Mprime = Matrix<double>.Build.DenseOfArray(new[,]
+            var Mprime = Matrix.FromValues(new[,]
             {
                 { red.X / red.Y, green.X / green.Y, blue.X / blue.Y },
                 { 1, 1, 1 },
                 { (1 - red.X - red.Y) / red.Y, (1 - green.X - green.Y) / green.Y, (1 - blue.X - blue.Y) / blue.Y }
             });
 
-            return Mprime * Matrix<double>.Build.DiagonalOfDiagonalVector((Mprime.Inverse() * whiteXYZ).Column(0));
+            return Mprime * Matrix.FromDiagonal(Mprime.Inverse() * whiteXYZ);
         }
 
-        public static Matrix<double> XYZToRGB(ColorSpace colorSpace)
+        public static Matrix XYZToRGB(ColorSpace colorSpace)
         {
             return RGBToXYZ(colorSpace).Inverse();
         }
 
-        public static Matrix<double> RGBToRGB(ColorSpace from, ColorSpace to)
+        public static Matrix RGBToRGB(ColorSpace from, ColorSpace to)
         {
             var result = XYZToRGB(to) * RGBToXYZ(from);
-            result.CoerceZero(1e-14);
             return result;
+        }
+
+        public static Matrix RGBToPCSXYZ(ColorSpace colorspace)
+        {
+            var xyz = RGBToXYZ(colorspace);
+            var bradford = Matrix.FromValues(new[,]
+            {
+                { 0.8951, 0.2664, -0.1614 },
+                { -0.7502, 1.7135, 0.0367 },
+                { 0.0389, -0.0685, 1.0296 }
+            });
+            var ws = colorspace.White;
+            var aws = bradford * Matrix.FromValues(new[,]
+            {
+                { ws.X / ws.Y }, { 1 }, { (1 - ws.X - ws.Y) / ws.Y }
+            });
+            var awd = bradford * Matrix.FromValues(new[,]
+            {
+                { 0.9642 }, { 1 }, { 0.8249 }
+            });
+            var m = bradford.Inverse() * Matrix.FromDiagonal(new[]
+                { awd[0, 0] / aws[0, 0], awd[1, 0] / aws[1, 0], awd[2, 0] / aws[2, 0] }) * bradford;
+            return m * xyz;
+        }
+
+        public static Matrix PCSXYZToRGB(ColorSpace colorspace)
+        {
+            return RGBToPCSXYZ(colorspace).Inverse();
         }
     }
 }

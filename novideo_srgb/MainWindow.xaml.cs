@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Linq;
+using System.Windows;
 
 namespace novideo_srgb
 {
@@ -9,17 +10,27 @@ namespace novideo_srgb
         public MainWindow()
         {
             InitializeComponent();
-            _viewModel = (MainViewModel) DataContext;
+            _viewModel = (MainViewModel)DataContext;
         }
 
-        private void MonitorRefreshButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void MonitorRefreshButton_Click(object sender, RoutedEventArgs e)
         {
             _viewModel.UpdateMonitors();
         }
 
-        private void OverrideButton_click(object sender, System.Windows.RoutedEventArgs e)
+        private void AdvancedButton_Click(object sender, RoutedEventArgs e)
         {
-            new InfoWindow(((FrameworkElement) sender).DataContext as MonitorData).Show();
+            if (Application.Current.Windows.Cast<Window>().Any(x => x is AdvancedWindow)) return;
+            var monitor = ((FrameworkElement)sender).DataContext as MonitorData;
+            var window = new AdvancedWindow(monitor)
+            {
+                Owner = this
+            };
+            window.ShowDialog();
+            if (!window.Changed) return;
+            
+            _viewModel.SaveConfig();
+            monitor?.ReapplyClamp();
         }
     }
 }

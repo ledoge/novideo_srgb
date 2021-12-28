@@ -1,0 +1,97 @@
+﻿<Window x:Class="novideo_srgb.AdvancedWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d"
+        xmlns:local="clr-namespace:novideo_srgb"
+        Title="Advanced"
+        ResizeMode="NoResize"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        Width="350">
+    <d:Window.DataContext>
+        <local:AdvancedViewModel />
+    </d:Window.DataContext>
+    <StackPanel Margin="6">
+        <RadioButton IsChecked="{Binding UseEdid}" Margin="0,0,0, 6">
+            <StackPanel IsEnabled="{Binding UseEdid}">
+                <TextBlock Text="Use EDID primaries" Margin="0,0,0,6" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0">Red </Label>
+                    <TextBox Text="{Binding Coords.RedX, Mode=OneWay, StringFormat={}{0:#,0.000}}"
+                             IsReadOnly="True"
+                             Grid.Row="0" Grid.Column="1"
+                             VerticalAlignment="Center" />
+                    <Label Grid.Row="0" Grid.Column="2">x</Label>
+                    <TextBox Text="{Binding Coords.RedY, Mode=OneWay, StringFormat={}{0:#,0.000}}"
+                             IsReadOnly="True"
+                             Grid.Row="0" Grid.Column="3"
+                             VerticalAlignment="Center" />
+                    <Label Grid.Row="0" Grid.Column="4">y</Label>
+                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0">Green </Label>
+                    <TextBox Text="{Binding Coords.GreenX, Mode=OneWay, StringFormat={}{0:#,0.000}}"
+                             IsReadOnly="True"
+                             Grid.Row="1" Grid.Column="1"
+                             VerticalAlignment="Center" />
+                    <Label Grid.Row="1" Grid.Column="2">x</Label>
+                    <TextBox Text="{Binding Coords.GreenY, Mode=OneWay, StringFormat={}{0:#,0.000}}"
+                             IsReadOnly="True"
+                             Grid.Row="1" Grid.Column="3"
+                             VerticalAlignment="Center" />
+                    <Label Grid.Row="1" Grid.Column="4">y</Label>
+                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0">Blue </Label>
+                    <TextBox Text="{Binding Coords.BlueX, Mode=OneWay, StringFormat={}{0:#,0.000}}"
+                             IsReadOnly="True"
+                             Grid.Row="2" Grid.Column="1"
+                             VerticalAlignment="Center" />
+                    <Label Grid.Row="2" Grid.Column="2">x</Label>
+                    <TextBox Text="{Binding Coords.BlueY, Mode=OneWay, StringFormat={}{0:#,0.000}}"
+                             IsReadOnly="True"
+                             Grid.Row="2" Grid.Column="3"
+                             VerticalAlignment="Center" />
+                    <Label Grid.Row="2" Grid.Column="4">y</Label>
+                </Grid>
+            </StackPanel>
+        </RadioButton>
+        <RadioButton IsChecked="{Binding UseIcc}" HorizontalContentAlignment="Stretch">
+            <StackPanel IsEnabled="{Binding UseIcc}">
+                <TextBlock Text="Use ICC profile" Margin="0,0,0,6" />
+                <Grid Margin="0,0,0, 6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" IsReadOnly="True" Text="{Binding ProfileName, Mode=OneWay}" />
+                    <Button Grid.Column="1"
+                            Content="Browse..."
+                            Click="Browse_Click"
+                            Width="75" Margin="6,0,0,0" />
+                </Grid>
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox IsChecked="{Binding CalibrateGamma}" VerticalAlignment="Center">Calibrate gamma to</CheckBox>
+                    <ComboBox SelectedIndex="{Binding SelectedGamma}" VerticalAlignment="Center" Margin="6,0,0,0">
+                        <ComboBoxItem>sRGB</ComboBoxItem>
+                        <ComboBoxItem>BT.1886</ComboBoxItem>
+                        <ComboBoxItem>Absolute</ComboBoxItem>
+                    </ComboBox>
+                    <TextBox Visibility="{Binding UseCustomGamma, Mode=OneWay}" Text="{Binding CustomGamma}"
+                             VerticalContentAlignment="Center" Width="50" Margin="6,0,0,0" />
+                </StackPanel>
+            </StackPanel>
+        </RadioButton>
+    </StackPanel>
+</Window>
