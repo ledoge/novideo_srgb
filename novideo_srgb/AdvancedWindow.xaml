@@ -7,9 +7,8 @@
         xmlns:local="clr-namespace:novideo_srgb"
         Title="Advanced"
         ResizeMode="NoResize"
-        SizeToContent="Height"
-        WindowStartupLocation="CenterOwner"
-        Width="350">
+        SizeToContent="WidthAndHeight"
+        WindowStartupLocation="CenterOwner">
     <d:Window.DataContext>
         <local:AdvancedViewModel />
     </d:Window.DataContext>
@@ -91,6 +90,7 @@
                     <TextBox Visibility="{Binding UseCustomGamma, Mode=OneWay}" Text="{Binding CustomGamma}"
                              VerticalContentAlignment="Center" Width="50" Margin="6,0,0,0" />
                 </StackPanel>
+                <CheckBox IsChecked="{Binding IgnoreTRC}">Use selected gamma instead of TRC (not recommended)</CheckBox>
             </StackPanel>
         </RadioButton>
     </StackPanel>

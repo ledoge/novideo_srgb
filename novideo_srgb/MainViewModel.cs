@@ -43,7 +43,8 @@ namespace novideo_srgb
                         (string)settings.Attribute("icc_path"),
                         (bool)settings.Attribute("calibrate_gamma"),
                         (int)settings.Attribute("selected_gamma"),
-                        (float)settings.Attribute("custom_gamma"));
+                        (float)settings.Attribute("custom_gamma"),
+                        (bool?)settings.Attribute("ignore_trc") ?? false);
                 }
                 else
                 {
@@ -63,7 +64,8 @@ namespace novideo_srgb
                         new XAttribute("icc_path", x.ProfilePath),
                         new XAttribute("calibrate_gamma", x.CalibrateGamma),
                         new XAttribute("selected_gamma", x.SelectedGamma),
-                        new XAttribute("custom_gamma", x.CustomGamma))));
+                        new XAttribute("custom_gamma", x.CustomGamma),
+                        new XAttribute("ignore_trc", x.IgnoreTRC))));
             xElem.Save(_configPath);
         }
     }

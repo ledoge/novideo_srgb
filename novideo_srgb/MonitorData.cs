@@ -64,13 +64,14 @@ namespace novideo_srgb
         }
 
         public MonitorData(int number, Display display, uint id, bool useIcc, string profilePath, bool calibrateGamma,
-            int selectedGamma, float customGamma) : this(number, display, id)
+            int selectedGamma, float customGamma, bool ignoreTRC) : this(number, display, id)
         {
             UseIcc = useIcc;
             ProfilePath = profilePath;
             CalibrateGamma = calibrateGamma;
             SelectedGamma = selectedGamma;
             CustomGamma = customGamma;
+            IgnoreTRC = ignoreTRC;
         }
 
         public int Number { get; }
@@ -94,7 +95,7 @@ namespace novideo_srgb
                 var profile = ICCMatrixProfile.FromFile(ProfilePath);
                 if (CalibrateGamma)
                 {
-                    var black = profile.trcs.Min(x => x.SampleAt(0));
+                    var black = !IgnoreTRC ? profile.trcs.Min(x => x.SampleAt(0)) : 0;
                     ToneCurve gamma;
                     switch (SelectedGamma)
                     {
@@ -111,7 +112,7 @@ namespace novideo_srgb
                             throw new NotSupportedException("Unsupported gamma type " + SelectedGamma);
                     }
 
-                    Novideo.SetColorSpaceConversion(_output, profile, gamma);
+                    Novideo.SetColorSpaceConversion(_output, profile, gamma, IgnoreTRC);
                 }
                 else
                 {
@@ -171,6 +172,8 @@ namespace novideo_srgb
         public int SelectedGamma { set; get; }
 
         public float CustomGamma { set; get; }
+
+        public bool IgnoreTRC { set; get; }
 
         private void OnPropertyChanged([CallerMemberName] string name = null)
         {

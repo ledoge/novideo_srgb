@@ -105,6 +105,18 @@ namespace novideo_srgb
             get => _monitor.CustomGamma;
         }
 
+        public bool IgnoreTRC
+        {
+            set
+            {
+                if (value == _monitor.IgnoreTRC) return;
+                _monitor.IgnoreTRC = value;
+                OnPropertyChanged();
+                Changed = true;
+            }
+            get => _monitor.IgnoreTRC;
+        }
+
         public bool Changed { get; set; }
 
         private void OnPropertyChanged([CallerMemberName] string name = null)

@@ -159,7 +159,8 @@ namespace novideo_srgb
                 MatrixToColorSpaceConversion(profile.matrix.Inverse() * Colorimetry.RGBToPCSXYZ(Colorimetry.sRGB)));
         }
 
-        public static unsafe void SetColorSpaceConversion(GPUOutput output, ICCMatrixProfile profile, ToneCurve curve)
+        public static unsafe void SetColorSpaceConversion(GPUOutput output, ICCMatrixProfile profile, ToneCurve curve,
+            bool ignoreTRC)
         {
             var displayId = output.PhysicalGPU.GetDisplayDeviceByOutput(output).DisplayId;
             var gamma = new float[2, 1024, 3];
@@ -200,7 +201,10 @@ namespace novideo_srgb
                 {
                     for (var j = 0; j < 3; j++)
                     {
-                        var value = profile.trcs[j].SampleInverseAt(i / 1023d);
+                        var value = !ignoreTRC
+                            ? profile.trcs[j].SampleInverseAt(i / 1023d)
+                            : curve.SampleInverseAt(i / 1023d);
+
                         if (profile.vcgt != null)
                         {
                             value = profile.vcgt[j].SampleAt(value);
