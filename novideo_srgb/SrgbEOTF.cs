@@ -30,7 +30,11 @@ namespace novideo_srgb
 
         public double SampleInverseAt(double x)
         {
-            throw new NotSupportedException();
+            if (_black != 0) throw new NotSupportedException();
+            if (x >= 1) return 1;
+
+            if (x <= 0.0031308) return 12.92 * x;
+            return 1.055 * Math.Pow(x, 1 / 2.4) - 0.055;
         }
     }
 }
