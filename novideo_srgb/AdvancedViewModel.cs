@@ -91,9 +91,10 @@ namespace novideo_srgb
             get => _monitor.SelectedGamma;
         }
 
-        public Visibility UseCustomGamma => SelectedGamma == 2 ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility UseCustomGamma =>
+            SelectedGamma == 2 || SelectedGamma == 3 ? Visibility.Visible : Visibility.Collapsed;
 
-        public float CustomGamma
+        public double CustomGamma
         {
             set
             {

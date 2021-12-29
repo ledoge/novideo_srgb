@@ -64,7 +64,7 @@ namespace novideo_srgb
         }
 
         public MonitorData(int number, Display display, uint id, bool useIcc, string profilePath, bool calibrateGamma,
-            int selectedGamma, float customGamma, bool ignoreTRC) : this(number, display, id)
+            int selectedGamma, double customGamma, bool ignoreTRC) : this(number, display, id)
         {
             UseIcc = useIcc;
             ProfilePath = profilePath;
@@ -107,6 +107,9 @@ namespace novideo_srgb
                             break;
                         case 2:
                             gamma = new GammaToneCurve(CustomGamma, black);
+                            break;
+                        case 3:
+                            gamma = new GammaToneCurve(CustomGamma, black, true);
                             break;
                         default:
                             throw new NotSupportedException("Unsupported gamma type " + SelectedGamma);
@@ -171,7 +174,7 @@ namespace novideo_srgb
 
         public int SelectedGamma { set; get; }
 
-        public float CustomGamma { set; get; }
+        public double CustomGamma { set; get; }
 
         public bool IgnoreTRC { set; get; }
 

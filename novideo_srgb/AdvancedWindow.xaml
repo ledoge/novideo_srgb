@@ -82,12 +82,15 @@
                 </Grid>
                 <StackPanel Orientation="Horizontal">
                     <CheckBox IsChecked="{Binding CalibrateGamma}" VerticalAlignment="Center">Calibrate gamma to</CheckBox>
-                    <ComboBox IsEnabled="{Binding CalibrateGamma}" SelectedIndex="{Binding SelectedGamma}" VerticalAlignment="Center" Margin="6,0,0,0">
+                    <ComboBox IsEnabled="{Binding CalibrateGamma}" SelectedIndex="{Binding SelectedGamma}"
+                              VerticalAlignment="Center" Margin="6,0,0,0">
                         <ComboBoxItem>sRGB</ComboBoxItem>
                         <ComboBoxItem>BT.1886</ComboBoxItem>
                         <ComboBoxItem>Absolute</ComboBoxItem>
+                        <ComboBoxItem>Relative</ComboBoxItem>
                     </ComboBox>
-                    <TextBox IsEnabled="{Binding CalibrateGamma}" Visibility="{Binding UseCustomGamma, Mode=OneWay}" Text="{Binding CustomGamma}"
+                    <TextBox IsEnabled="{Binding CalibrateGamma}" Visibility="{Binding UseCustomGamma, Mode=OneWay}"
+                             Text="{Binding CustomGamma}"
                              VerticalContentAlignment="Center" Width="50" Margin="6,0,0,0" />
                 </StackPanel>
                 <CheckBox IsEnabled="{Binding CalibrateGamma}" IsChecked="{Binding IgnoreTRC}">Use selected gamma instead of TRC (not recommended)</CheckBox>
