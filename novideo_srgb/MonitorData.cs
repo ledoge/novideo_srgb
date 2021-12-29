@@ -59,7 +59,7 @@ namespace novideo_srgb
             var matrix = Colorimetry.RGBToRGB(Colorimetry.sRGB, colorSpace);
             _csc = Novideo.MatrixToColorSpaceConversion(matrix);
 
-            CustomGamma = 2.2f;
+            CustomGamma = 2.2;
             ProfilePath = "";
         }
 
