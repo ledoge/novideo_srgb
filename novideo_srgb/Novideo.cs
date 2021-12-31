@@ -152,17 +152,20 @@ namespace novideo_srgb
                 throw new Exception("NvAPI_GPU_SetColorSpaceConversion failed with error code " + status);
             }
         }
-
-        public static void SetColorSpaceConversion(GPUOutput output, ICCMatrixProfile profile)
+        
+        public static unsafe void SetColorSpaceConversion(GPUOutput output, ICCMatrixProfile profile,
+            ToneCurve curve = null,
+            bool ignoreTRC = false)
         {
-            SetColorSpaceConversion(output,
-                MatrixToColorSpaceConversion(Colorimetry.XYZScaleToD50(profile.matrix).Inverse() *
-                                             Colorimetry.RGBToPCSXYZ(Colorimetry.sRGB)));
-        }
+            var matrix = Colorimetry.XYZScaleToD50(profile.matrix).Inverse() *
+                         Colorimetry.RGBToPCSXYZ(Colorimetry.sRGB);
 
-        public static unsafe void SetColorSpaceConversion(GPUOutput output, ICCMatrixProfile profile, ToneCurve curve,
-            bool ignoreTRC)
-        {
+            if (curve == null)
+            {
+                SetColorSpaceConversion(output, MatrixToColorSpaceConversion(matrix));
+                return;
+            }
+
             var displayId = output.PhysicalGPU.GetDisplayDeviceByOutput(output).DisplayId;
             var gamma = new float[2, 1024, 3];
             fixed (float* buffer = gamma)
@@ -185,9 +188,6 @@ namespace novideo_srgb
                         gamma[0, i, j] = (float)curve.SampleAt(i / 1023d);
                     }
                 }
-
-                var matrix = Colorimetry.XYZScaleToD50(profile.matrix).Inverse() *
-                             Colorimetry.RGBToPCSXYZ(Colorimetry.sRGB);
 
                 for (var i = 0; i < 3; i++)
                 {
