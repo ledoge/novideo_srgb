@@ -156,7 +156,8 @@ namespace novideo_srgb
         public static void SetColorSpaceConversion(GPUOutput output, ICCMatrixProfile profile)
         {
             SetColorSpaceConversion(output,
-                MatrixToColorSpaceConversion(profile.matrix.Inverse() * Colorimetry.RGBToPCSXYZ(Colorimetry.sRGB)));
+                MatrixToColorSpaceConversion(Colorimetry.XYZScaleToD50(profile.matrix).Inverse() *
+                                             Colorimetry.RGBToPCSXYZ(Colorimetry.sRGB)));
         }
 
         public static unsafe void SetColorSpaceConversion(GPUOutput output, ICCMatrixProfile profile, ToneCurve curve,
@@ -185,7 +186,8 @@ namespace novideo_srgb
                     }
                 }
 
-                var matrix = profile.matrix.Inverse() * Colorimetry.RGBToPCSXYZ(Colorimetry.sRGB);
+                var matrix = Colorimetry.XYZScaleToD50(profile.matrix).Inverse() *
+                             Colorimetry.RGBToPCSXYZ(Colorimetry.sRGB);
 
                 for (var i = 0; i < 3; i++)
                 {

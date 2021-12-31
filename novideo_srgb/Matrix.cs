@@ -43,6 +43,11 @@ namespace novideo_srgb
             return FromValues(new double[3, 1]);
         }
 
+        public static Matrix One3x1()
+        {
+            return FromValues(new double[,] { { 1 }, { 1 }, { 1 } });
+        }
+
         public static Matrix FromDiagonal(double[] array)
         {
             if (array.Length != 3)

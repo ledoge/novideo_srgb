@@ -77,6 +77,8 @@ namespace novideo_srgb
             White = D65
         };
 
+        public static Matrix D50 = Matrix.FromValues(new[,] { { 0.9642 }, { 1 }, { 0.8249 } });
+
         public static Matrix RGBToXYZ(ColorSpace colorSpace)
         {
             var red = colorSpace.Red;
@@ -107,7 +109,7 @@ namespace novideo_srgb
             return result;
         }
 
-        public static Matrix RGBToPCSXYZ(ColorSpace colorspace)
+        public static Matrix RGBToAdaptedXYZ(ColorSpace colorspace, Matrix whiteXYZ)
         {
             var xyz = RGBToXYZ(colorspace);
             var bradford = Matrix.FromValues(new[,]
@@ -121,18 +123,39 @@ namespace novideo_srgb
             {
                 { ws.X / ws.Y }, { 1 }, { (1 - ws.X - ws.Y) / ws.Y }
             });
-            var awd = bradford * Matrix.FromValues(new[,]
-            {
-                { 0.9642 }, { 1 }, { 0.8249 }
-            });
+            var awd = bradford * whiteXYZ;
             var m = bradford.Inverse() * Matrix.FromDiagonal(new[]
                 { awd[0, 0] / aws[0, 0], awd[1, 0] / aws[1, 0], awd[2, 0] / aws[2, 0] }) * bradford;
             return m * xyz;
         }
 
+        public static Matrix RGBToPCSXYZ(ColorSpace colorspace)
+        {
+            return RGBToAdaptedXYZ(colorspace, D50);
+        }
+
         public static Matrix PCSXYZToRGB(ColorSpace colorspace)
         {
             return RGBToPCSXYZ(colorspace).Inverse();
+        }
+
+        public static Matrix XYZScale(Matrix matrix, Matrix target)
+        {
+            var result = Matrix.Zero3x3();
+            var white = matrix * Matrix.One3x1();
+            for (var i = 0; i < 3; i++)
+            {
+                for (var j = 0; j < 3; j++)
+                {
+                    result[i, j] = matrix[i, j] * target[i, 0] / white[i, 0];
+                }
+            }
+            return result;
+        }
+        
+        public static Matrix XYZScaleToD50(Matrix matrix)
+        {
+            return XYZScale(matrix, D50);
         }
     }
 }
