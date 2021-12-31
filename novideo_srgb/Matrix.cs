@@ -38,7 +38,7 @@ namespace novideo_srgb
             return FromValues(new double[3, 3]);
         }
 
-        public static Matrix Zero3()
+        public static Matrix Zero3x1()
         {
             return FromValues(new double[3, 1]);
         }
@@ -79,7 +79,7 @@ namespace novideo_srgb
                 throw new ArgumentException("Left side must be 3x3");
             }
 
-            var result = b.Cols == 3 ? Zero3x3() : Zero3();
+            var result = b.Cols == 3 ? Zero3x3() : Zero3x1();
 
             for (var i = 0; i < 3; i++)
             {
@@ -97,10 +97,11 @@ namespace novideo_srgb
 
         public static Matrix operator *(double a, Matrix b)
         {
-            var result = Zero3x3();
-            for (var i = 0; i < 3; i++)
+            var result = b.Cols == 1 ? Zero3x1() : Zero3x3();
+
+            for (var i = 0; i < result.Rows; i++)
             {
-                for (var j = 0; j < 3; j++)
+                for (var j = 0; j < result.Cols; j++)
                 {
                     result[i, j] = a * b[i, j];
                 }
