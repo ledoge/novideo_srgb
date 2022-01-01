@@ -13,14 +13,21 @@ namespace novideo_srgb
 
         private MonitorData _monitor;
 
+        private int _ditherState;
+        private int _ditherMode;
+        private int _ditherBits;
+
         public AdvancedViewModel()
         {
             throw new NotSupportedException();
         }
 
-        public AdvancedViewModel(MonitorData monitor)
+        public AdvancedViewModel(MonitorData monitor, Novideo.DitherControl dither)
         {
             _monitor = monitor;
+            _ditherBits = dither.bits;
+            _ditherMode = dither.mode;
+            _ditherState = dither.state;
         }
 
         public ChromaticityCoordinates Coords => _monitor.Edid.DisplayParameters.ChromaticityCoordinates;
@@ -33,7 +40,7 @@ namespace novideo_srgb
                 _monitor.UseEdid = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(UseIcc));
-                Changed = true;
+                ChangedCalibration = true;
             }
             get => _monitor.UseEdid;
         }
@@ -46,7 +53,7 @@ namespace novideo_srgb
                 _monitor.UseIcc = value;
                 OnPropertyChanged(nameof(UseEdid));
                 OnPropertyChanged();
-                Changed = true;
+                ChangedCalibration = true;
             }
             get => _monitor.UseIcc;
         }
@@ -59,7 +66,7 @@ namespace novideo_srgb
                 _monitor.ProfilePath = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ProfileName));
-                Changed = true;
+                ChangedCalibration = true;
             }
             get => _monitor.ProfilePath;
         }
@@ -73,7 +80,7 @@ namespace novideo_srgb
                 if (value == _monitor.CalibrateGamma) return;
                 _monitor.CalibrateGamma = value;
                 OnPropertyChanged();
-                Changed = true;
+                ChangedCalibration = true;
             }
             get => _monitor.CalibrateGamma;
         }
@@ -86,7 +93,7 @@ namespace novideo_srgb
                 _monitor.SelectedGamma = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(UseCustomGamma));
-                Changed = true;
+                ChangedCalibration = true;
             }
             get => _monitor.SelectedGamma;
         }
@@ -101,7 +108,7 @@ namespace novideo_srgb
                 if (value == _monitor.CustomGamma) return;
                 _monitor.CustomGamma = value;
                 OnPropertyChanged();
-                Changed = true;
+                ChangedCalibration = true;
             }
             get => _monitor.CustomGamma;
         }
@@ -113,12 +120,53 @@ namespace novideo_srgb
                 if (value == _monitor.IgnoreTRC) return;
                 _monitor.IgnoreTRC = value;
                 OnPropertyChanged();
-                Changed = true;
+                ChangedCalibration = true;
             }
             get => _monitor.IgnoreTRC;
         }
 
-        public bool Changed { get; set; }
+        public bool ChangedCalibration { get; set; }
+
+        public int DitherState
+        {
+            set
+            {
+                if (value == _ditherState) return;
+                _ditherState = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CustomDither));
+                ChangedDither = true;
+            }
+            get => _ditherState;
+        }
+
+        public int DitherMode
+        {
+            set
+            {
+                if (value == _ditherMode) return;
+                _ditherMode = value;
+                OnPropertyChanged();
+                ChangedDither = true;
+            }
+            get => _ditherMode;
+        }
+
+        public int DitherBits
+        {
+            set
+            {
+                if (value == _ditherBits) return;
+                _ditherBits = value;
+                OnPropertyChanged();
+                ChangedDither = true;
+            }
+            get => _ditherBits;
+        }
+
+        public bool CustomDither => DitherState == 1;
+
+        public bool ChangedDither { get; set; }
 
         private void OnPropertyChanged([CallerMemberName] string name = null)
         {

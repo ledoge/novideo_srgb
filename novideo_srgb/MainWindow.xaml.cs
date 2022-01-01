@@ -27,10 +27,17 @@ namespace novideo_srgb
                 Owner = this
             };
             window.ShowDialog();
-            if (!window.Changed) return;
-            
-            _viewModel.SaveConfig();
-            monitor?.ReapplyClamp();
+            if (window.ChangedCalibration)
+            {
+                _viewModel.SaveConfig();
+                monitor?.ReapplyClamp();
+            }
+
+            if (window.ChangedDither)
+            {
+                monitor?.ApplyDither(window.DitherState.SelectedIndex, window.DitherBits.SelectedIndex,
+                    window.DitherMode.SelectedIndex);
+            }
         }
     }
 }

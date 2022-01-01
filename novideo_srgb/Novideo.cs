@@ -49,8 +49,26 @@ namespace novideo_srgb
             public int bufferSize; // 0x6000
         }
 
+        public struct DitherControl
+        {
+            public int state;
+            public int bits;
+            public int mode;
+            public uint bitsCaps;
+            public uint modeCaps;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct Dither
+        {
+            public uint version;
+            public DitherControl ditherControl;
+        }
+
         private const uint _NvAPI_GPU_GetColorSpaceConversion = 0x8159E87A;
         private const uint _NvAPI_GPU_SetColorSpaceConversion = 0x0FCABD23A;
+        private const uint _NvAPI_GPU_SetDitherControl = 0x0DF0DFCDD;
+        private const uint _NvAPI_GPU_GetDitherControl = 0x932AC8FB;
 
         [DllImport("nvapi64", EntryPoint = "nvapi_QueryInterface")]
         private static extern IntPtr NvAPI_QueryInterface(uint id);
@@ -65,6 +83,17 @@ namespace novideo_srgb
 
         private static NvAPI_GPU_GetColorSpaceConversion_t NvAPI_GPU_GetColorSpaceConversion;
         private static NvAPI_GPU_SetColorSpaceConversion_t NvAPI_GPU_SetColorSpaceConversion;
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate int NvAPI_GPU_GetDitherControl_t(uint displayId,
+            [MarshalAs(UnmanagedType.Struct)] ref Dither dither);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate int NvAPI_GPU_SetDitherControl_t(uint gpuId, uint outputId,
+            int state, int bits, int mode);
+
+        private static NvAPI_GPU_GetDitherControl_t NvAPI_GPU_GetDitherControl;
+        private static NvAPI_GPU_SetDitherControl_t NvAPI_GPU_SetDitherControl;
 
         public struct ColorSpaceConversion
         {
@@ -152,7 +181,7 @@ namespace novideo_srgb
                 throw new Exception("NvAPI_GPU_SetColorSpaceConversion failed with error code " + status);
             }
         }
-        
+
         public static unsafe void SetColorSpaceConversion(GPUOutput output, ICCMatrixProfile profile,
             ToneCurve curve = null,
             bool ignoreTRC = false)
@@ -268,15 +297,43 @@ namespace novideo_srgb
             return csc;
         }
 
+        public static DitherControl GetDitherControl(GPUOutput output)
+        {
+            var dither = new Dither
+                { version = 0x10018 };
+            var status = NvAPI_GPU_GetDitherControl(output.PhysicalGPU.GetDisplayDeviceByOutput(output).DisplayId,
+                ref dither);
+            if (status != 0)
+            {
+                throw new Exception("NvAPI_GPU_GetDitherControl failed with error code " + status);
+            }
+
+            return dither.ditherControl;
+        }
+
+        public static void SetDitherControl(GPUOutput output, int state, int bits, int mode)
+        {
+            var status = NvAPI_GPU_SetDitherControl(output.PhysicalGPU.GPUId, (uint)output.OutputId, state, bits, mode);
+            if (status != 0)
+            {
+                throw new Exception("NvAPI_GPU_SetDitherControl failed with error code " + status);
+            }
+        }
+
         static Novideo()
         {
             NvAPI_GPU_GetColorSpaceConversion =
                 Marshal.GetDelegateForFunctionPointer<NvAPI_GPU_GetColorSpaceConversion_t>(
                     NvAPI_QueryInterface(_NvAPI_GPU_GetColorSpaceConversion));
-
             NvAPI_GPU_SetColorSpaceConversion =
                 Marshal.GetDelegateForFunctionPointer<NvAPI_GPU_SetColorSpaceConversion_t>(
                     NvAPI_QueryInterface(_NvAPI_GPU_SetColorSpaceConversion));
+            NvAPI_GPU_GetDitherControl =
+                Marshal.GetDelegateForFunctionPointer<NvAPI_GPU_GetDitherControl_t>(
+                    NvAPI_QueryInterface(_NvAPI_GPU_GetDitherControl));
+            NvAPI_GPU_SetDitherControl =
+                Marshal.GetDelegateForFunctionPointer<NvAPI_GPU_SetDitherControl_t>(
+                    NvAPI_QueryInterface(_NvAPI_GPU_SetDitherControl));
         }
     }
 }

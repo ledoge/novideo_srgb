@@ -178,6 +178,20 @@ namespace novideo_srgb
 
         public bool IgnoreTRC { set; get; }
 
+        public Novideo.DitherControl DitherControl => Novideo.GetDitherControl(_output);
+
+        public void ApplyDither(int state, int bits, int mode)
+        {
+            try
+            {
+                Novideo.SetDitherControl(_output, state, bits, mode);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+        }
+
         private void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

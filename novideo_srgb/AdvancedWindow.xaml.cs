@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace novideo_srgb
 {
@@ -8,9 +10,20 @@ namespace novideo_srgb
 
         public AdvancedWindow(MonitorData monitor)
         {
-            _viewModel = new AdvancedViewModel(monitor);
+            var dither = monitor.DitherControl;
+            _viewModel = new AdvancedViewModel(monitor, dither);
             DataContext = _viewModel;
             InitializeComponent();
+
+            for (var i = 0; i < 5; i++)
+            {
+                ((ComboBoxItem)DitherMode.Items[i]).IsEnabled = ((dither.modeCaps >> i) & 1) == 1;
+            }
+
+            for (var i = 0; i < 3; i++)
+            {
+                ((ComboBoxItem)DitherBits.Items[i]).IsEnabled = ((dither.bitsCaps >> i) & 1) == 1;
+            }
         }
 
         private static string BrowseProfiles()
@@ -34,6 +47,7 @@ namespace novideo_srgb
             }
         }
 
-        public bool Changed => _viewModel.Changed;
+        public bool ChangedCalibration => _viewModel.ChangedCalibration;
+        public bool ChangedDither => _viewModel.ChangedDither;
     }
 }
