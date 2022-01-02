@@ -150,9 +150,10 @@ namespace novideo_srgb
                     result[i, j] = matrix[i, j] * target[i, 0] / white[i, 0];
                 }
             }
+
             return result;
         }
-        
+
         public static Matrix XYZScaleToD50(Matrix matrix)
         {
             return XYZScale(matrix, D50);

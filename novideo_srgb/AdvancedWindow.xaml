@@ -96,6 +96,14 @@
                                      Text="{Binding CustomGamma}"
                                      VerticalContentAlignment="Center" Width="50" Margin="6,0,0,0" />
                         </StackPanel>
+                        <StackPanel Visibility="{Binding UseCustomPercentage}" Orientation="Horizontal"
+                                    Margin="0,0,0,4">
+                            <TextBlock VerticalAlignment="Center">with</TextBlock>
+                            <TextBox Text="{Binding CustomPercentage}"
+                                     VerticalAlignment="Center" VerticalContentAlignment="Center" TextAlignment="Right"
+                                     Height="22" Width="50" Margin="6,0,0,0" />
+                            <TextBlock VerticalAlignment="Center" Margin="1,0,0,0">% black output offset</TextBlock>
+                        </StackPanel>
                         <CheckBox IsEnabled="{Binding CalibrateGamma}" IsChecked="{Binding IgnoreTRC}">Use selected gamma instead of TRC (not recommended)</CheckBox>
                     </StackPanel>
                 </RadioButton>
@@ -113,13 +121,15 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label HorizontalAlignment="Right">State</Label>
-                <ComboBox SelectedIndex="{Binding DitherState}" Name="DitherState" VerticalAlignment="Center" Grid.Row="0" Grid.Column="1">
+                <ComboBox SelectedIndex="{Binding DitherState}" Name="DitherState" VerticalAlignment="Center"
+                          Grid.Row="0" Grid.Column="1">
                     <ComboBoxItem>Default</ComboBoxItem>
                     <ComboBoxItem>Enable</ComboBoxItem>
                     <ComboBoxItem>Disable</ComboBoxItem>
                 </ComboBox>
                 <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0">Mode</Label>
-                <ComboBox IsEnabled="{Binding CustomDither}" SelectedIndex="{Binding DitherMode}" Name="DitherMode" VerticalAlignment="Center" Grid.Row="1"
+                <ComboBox IsEnabled="{Binding CustomDither}" SelectedIndex="{Binding DitherMode}" Name="DitherMode"
+                          VerticalAlignment="Center" Grid.Row="1"
                           Grid.Column="1">
                     <ComboBoxItem IsEnabled="False">SpatialDynamic</ComboBoxItem>
                     <ComboBoxItem>SpatialStatic</ComboBoxItem>
@@ -128,7 +138,8 @@
                     <ComboBoxItem>Temporal</ComboBoxItem>
                 </ComboBox>
                 <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0">Bits</Label>
-                <ComboBox IsEnabled="{Binding CustomDither}" SelectedIndex="{Binding DitherBits}" Name="DitherBits" VerticalAlignment="Center" Grid.Row="2"
+                <ComboBox IsEnabled="{Binding CustomDither}" SelectedIndex="{Binding DitherBits}" Name="DitherBits"
+                          VerticalAlignment="Center" Grid.Row="2"
                           Grid.Column="1">
                     <ComboBoxItem>6 bit</ComboBoxItem>
                     <ComboBoxItem>8 bit</ComboBoxItem>

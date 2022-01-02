@@ -59,18 +59,20 @@ namespace novideo_srgb
             var matrix = Colorimetry.RGBToRGB(Colorimetry.sRGB, colorSpace);
             _csc = Novideo.MatrixToColorSpaceConversion(matrix);
 
-            CustomGamma = 2.2;
             ProfilePath = "";
+            CustomGamma = 2.2;
+            CustomPercentage = 100;
         }
 
         public MonitorData(int number, Display display, uint id, bool useIcc, string profilePath, bool calibrateGamma,
-            int selectedGamma, double customGamma, bool ignoreTRC) : this(number, display, id)
+            int selectedGamma, double customGamma, double customPercentage, bool ignoreTRC) : this(number, display, id)
         {
             UseIcc = useIcc;
             ProfilePath = profilePath;
             CalibrateGamma = calibrateGamma;
             SelectedGamma = selectedGamma;
             CustomGamma = customGamma;
+            CustomPercentage = customPercentage;
             IgnoreTRC = ignoreTRC;
         }
 
@@ -103,10 +105,10 @@ namespace novideo_srgb
                             gamma = new SrgbEOTF(black);
                             break;
                         case 1:
-                            gamma = new Bt1886(black);
+                            gamma = new GammaToneCurve(2.4, black, 0);
                             break;
                         case 2:
-                            gamma = new GammaToneCurve(CustomGamma, black);
+                            gamma = new GammaToneCurve(CustomGamma, black, CustomPercentage / 100);
                             break;
                         case 3:
                             gamma = new GammaToneCurve(CustomGamma, black, true);
@@ -175,6 +177,8 @@ namespace novideo_srgb
         public int SelectedGamma { set; get; }
 
         public double CustomGamma { set; get; }
+
+        public double CustomPercentage { set; get; }
 
         public bool IgnoreTRC { set; get; }
 
