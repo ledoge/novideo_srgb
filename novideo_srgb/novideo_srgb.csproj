@@ -91,6 +91,7 @@
             <Generator>MSBuild:Compile</Generator>
             <SubType>Designer</SubType>
         </ApplicationDefinition>
+        <Compile Include="RangeRule.cs" />
         <Compile Include="GammaToneCurve.cs" />
         <Compile Include="ICCBinaryReader.cs" />
         <Compile Include="ICCProfileException.cs" />

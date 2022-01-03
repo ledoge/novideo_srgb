@@ -12,6 +12,17 @@
     <d:Window.DataContext>
         <local:AdvancedViewModel />
     </d:Window.DataContext>
+    <Window.Resources>
+        <Style x:Key="TextBoxInError" TargetType="{x:Type TextBox}">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="ToolTip"
+                            Value="{Binding RelativeSource={x:Static RelativeSource.Self},
+                        Path=(Validation.Errors)/ErrorContent}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
     <StackPanel Margin="6,0,6,6">
         <GroupBox Header="Calibration" Padding="6">
             <StackPanel>
@@ -93,18 +104,36 @@
                             </ComboBox>
                             <TextBox IsEnabled="{Binding CalibrateGamma}"
                                      Visibility="{Binding UseCustomGamma, Mode=OneWay}"
-                                     Text="{Binding CustomGamma}"
-                                     VerticalContentAlignment="Center" Width="50" Margin="6,0,0,0" />
+                                     Style="{StaticResource TextBoxInError}"
+                                     VerticalContentAlignment="Center" Width="50" Margin="6,0,0,0">
+                                <TextBox.Text>
+                                    <Binding Path="CustomGamma"
+                                             UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <local:RangeRule Min="1" Max="4" />
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </TextBox.Text>
+                            </TextBox>
                         </StackPanel>
                         <StackPanel Visibility="{Binding UseCustomGamma}" Orientation="Horizontal"
-                                    Margin="0,0,0,4">
+                                    Margin="0,0,0,1">
                             <TextBlock VerticalAlignment="Center">with</TextBlock>
-                            <TextBox Text="{Binding CustomPercentage}"
-                                     VerticalAlignment="Center" VerticalContentAlignment="Center" TextAlignment="Right"
-                                     Height="22" Width="50" Margin="6,0,0,0" />
-                            <TextBlock VerticalAlignment="Center" Margin="1,0,0,0">% black output offset</TextBlock>
+                            <TextBox
+                                VerticalAlignment="Center" VerticalContentAlignment="Center" TextAlignment="Right"
+                                Height="22" Width="50" Style="{StaticResource TextBoxInError}" Margin="6,0,0,0">
+                                <TextBox.Text>
+                                    <Binding Path="CustomPercentage"
+                                             UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <local:RangeRule Min="0" Max="100" />
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </TextBox.Text>
+                            </TextBox>
+                            <TextBlock VerticalAlignment="Center" Margin="2,0,0,0">% black output offset</TextBlock>
                         </StackPanel>
-                        <CheckBox IsEnabled="{Binding CalibrateGamma}" IsChecked="{Binding IgnoreTRC}">Use selected gamma instead of TRC (not recommended)</CheckBox>
+                        <CheckBox Margin="0,3,0,0" IsEnabled="{Binding CalibrateGamma}" IsChecked="{Binding IgnoreTRC}">Use selected gamma instead of TRC (not recommended)</CheckBox>
                     </StackPanel>
                 </RadioButton>
             </StackPanel>
