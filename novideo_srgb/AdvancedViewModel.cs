@@ -93,7 +93,6 @@ namespace novideo_srgb
                 _monitor.SelectedGamma = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(UseCustomGamma));
-                OnPropertyChanged(nameof(UseCustomPercentage));
                 ChangedCalibration = true;
             }
             get => _monitor.SelectedGamma;
@@ -125,8 +124,6 @@ namespace novideo_srgb
             }
             get => _monitor.IgnoreTRC;
         }
-
-        public Visibility UseCustomPercentage => SelectedGamma == 2 ? Visibility.Visible : Visibility.Collapsed;
 
         public double CustomPercentage
         {

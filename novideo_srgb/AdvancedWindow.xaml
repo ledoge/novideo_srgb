@@ -96,7 +96,7 @@
                                      Text="{Binding CustomGamma}"
                                      VerticalContentAlignment="Center" Width="50" Margin="6,0,0,0" />
                         </StackPanel>
-                        <StackPanel Visibility="{Binding UseCustomPercentage}" Orientation="Horizontal"
+                        <StackPanel Visibility="{Binding UseCustomGamma}" Orientation="Horizontal"
                                     Margin="0,0,0,4">
                             <TextBlock VerticalAlignment="Center">with</TextBlock>
                             <TextBox Text="{Binding CustomPercentage}"
