@@ -52,34 +52,34 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0">Red </Label>
-                            <TextBox Text="{Binding Coords.RedX, Mode=OneWay, StringFormat={}{0:#,0.000}}"
+                            <TextBox IsEnabled="False" Text="{Binding Coords.RedX, Mode=OneWay, StringFormat={}{0:#,0.000}}"
                                      IsReadOnly="True"
                                      Grid.Row="0" Grid.Column="1"
                                      VerticalAlignment="Center" />
                             <Label Grid.Row="0" Grid.Column="2">x</Label>
-                            <TextBox Text="{Binding Coords.RedY, Mode=OneWay, StringFormat={}{0:#,0.000}}"
+                            <TextBox IsEnabled="False" Text="{Binding Coords.RedY, Mode=OneWay, StringFormat={}{0:#,0.000}}"
                                      IsReadOnly="True"
                                      Grid.Row="0" Grid.Column="3"
                                      VerticalAlignment="Center" />
                             <Label Grid.Row="0" Grid.Column="4">y</Label>
                             <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0">Green </Label>
-                            <TextBox Text="{Binding Coords.GreenX, Mode=OneWay, StringFormat={}{0:#,0.000}}"
+                            <TextBox IsEnabled="False" Text="{Binding Coords.GreenX, Mode=OneWay, StringFormat={}{0:#,0.000}}"
                                      IsReadOnly="True"
                                      Grid.Row="1" Grid.Column="1"
                                      VerticalAlignment="Center" />
                             <Label Grid.Row="1" Grid.Column="2">x</Label>
-                            <TextBox Text="{Binding Coords.GreenY, Mode=OneWay, StringFormat={}{0:#,0.000}}"
+                            <TextBox IsEnabled="False" Text="{Binding Coords.GreenY, Mode=OneWay, StringFormat={}{0:#,0.000}}"
                                      IsReadOnly="True"
                                      Grid.Row="1" Grid.Column="3"
                                      VerticalAlignment="Center" />
                             <Label Grid.Row="1" Grid.Column="4">y</Label>
                             <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0">Blue </Label>
-                            <TextBox Text="{Binding Coords.BlueX, Mode=OneWay, StringFormat={}{0:#,0.000}}"
+                            <TextBox IsEnabled="False" Text="{Binding Coords.BlueX, Mode=OneWay, StringFormat={}{0:#,0.000}}"
                                      IsReadOnly="True"
                                      Grid.Row="2" Grid.Column="1"
                                      VerticalAlignment="Center" />
                             <Label Grid.Row="2" Grid.Column="2">x</Label>
-                            <TextBox Text="{Binding Coords.BlueY, Mode=OneWay, StringFormat={}{0:#,0.000}}"
+                            <TextBox IsEnabled="False" Text="{Binding Coords.BlueY, Mode=OneWay, StringFormat={}{0:#,0.000}}"
                                      IsReadOnly="True"
                                      Grid.Row="2" Grid.Column="3"
                                      VerticalAlignment="Center" />
@@ -95,7 +95,7 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0" IsReadOnly="True" Text="{Binding ProfileName, Mode=OneWay}" />
+                            <TextBox IsEnabled="False" Grid.Column="0" IsReadOnly="True" Text="{Binding ProfileName, Mode=OneWay}" />
                             <Button Grid.Column="1"
                                     Content="Browse..."
                                     Click="Browse_Click"
