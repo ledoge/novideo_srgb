@@ -1,5 +1,5 @@
 # About
-This tool uses an undocumented NVIDIA API, supported on Fermi and later, to convert colors before sending them to a wide gamut monitor to effectively clamp it to sRGB (based on the chromaticities provided in its EDID). AMD supports this as a hidden setting in their drivers, but NVIDIA doesn't because ???.
+This tool uses an undocumented NVIDIA API, supported on Fermi and later, to convert colors before sending them to a wide gamut monitor to effectively clamp it to sRGB (alternatively, Display P3 or Adobe RGB), based on the chromaticities provided in its EDID. AMD supports this as a hidden setting in their drivers, but NVIDIA doesn't because ???.
 
 ICC profiles are also supported and can either be used to only remap the gamut (which is probably what you want when using one not created by yourself) or for a full LUT-Matrix-LUT calibration, which should lead to great grayscale and color accuracy on well-behaved displays.
 
