@@ -18,7 +18,6 @@ namespace novideo_srgb
         public event PropertyChangedEventHandler PropertyChanged;
 
         private readonly GPUOutput _output;
-        private readonly Novideo.ColorSpaceConversion? _csc;
         private bool _clamped;
         private bool _illegalChromaticies;
 
@@ -35,19 +34,13 @@ namespace novideo_srgb
             ID = id;
 
             var coords = Edid.DisplayParameters.ChromaticityCoordinates;
-            var colorSpace = new Colorimetry.ColorSpace
+            EdidColorSpace = new Colorimetry.ColorSpace
             {
                 Red = new Colorimetry.Point { X = Math.Round(coords.RedX, 3), Y = Math.Round(coords.RedY, 3) },
                 Green = new Colorimetry.Point { X = Math.Round(coords.GreenX, 3), Y = Math.Round(coords.GreenY, 3) },
                 Blue = new Colorimetry.Point { X = Math.Round(coords.BlueX, 3), Y = Math.Round(coords.BlueY, 3) },
                 White = Colorimetry.D65
             };
-
-            if (colorSpace.Equals(Colorimetry.sRGB))
-            {
-                _clamped = true;
-                return;
-            }
 
             if (Edid.DisplayParameters.IsStandardSRGBColorSpace)
             {
@@ -56,16 +49,13 @@ namespace novideo_srgb
 
             _clamped = Novideo.IsColorSpaceConversionActive(_output);
 
-            var matrix = Colorimetry.RGBToRGB(Colorimetry.sRGB, colorSpace);
-            _csc = Novideo.MatrixToColorSpaceConversion(matrix);
-
             ProfilePath = "";
             CustomGamma = 2.2;
             CustomPercentage = 100;
         }
 
         public MonitorData(int number, Display display, uint id, bool useIcc, string profilePath, bool calibrateGamma,
-            int selectedGamma, double customGamma, double customPercentage, bool ignoreTRC) : this(number, display, id)
+            int selectedGamma, double customGamma, double customPercentage, int target) : this(number, display, id)
         {
             UseIcc = useIcc;
             ProfilePath = profilePath;
@@ -73,7 +63,7 @@ namespace novideo_srgb
             SelectedGamma = selectedGamma;
             CustomGamma = customGamma;
             CustomPercentage = customPercentage;
-            IgnoreTRC = ignoreTRC;
+            Target = target;
         }
 
         public int Number { get; }
@@ -91,13 +81,14 @@ namespace novideo_srgb
             if (!doClamp) return;
 
             if (_clamped) Thread.Sleep(100);
-            if (UseEdid && _csc != null) Novideo.SetColorSpaceConversion(_output, (Novideo.ColorSpaceConversion)_csc);
+            if (UseEdid)
+                Novideo.SetColorSpaceConversion(_output, Colorimetry.RGBToRGB(TargetColorSpace, EdidColorSpace));
             else if (UseIcc)
             {
                 var profile = ICCMatrixProfile.FromFile(ProfilePath);
                 if (CalibrateGamma)
                 {
-                    var black = !IgnoreTRC ? profile.trcs.Min(x => x.SampleAt(0)) : 0;
+                    var black = profile.trcs.Min(x => x.SampleAt(0));
                     ToneCurve gamma;
                     switch (SelectedGamma)
                     {
@@ -117,11 +108,11 @@ namespace novideo_srgb
                             throw new NotSupportedException("Unsupported gamma type " + SelectedGamma);
                     }
 
-                    Novideo.SetColorSpaceConversion(_output, profile, gamma, IgnoreTRC);
+                    Novideo.SetColorSpaceConversion(_output, profile, TargetColorSpace, gamma);
                 }
                 else
                 {
-                    Novideo.SetColorSpaceConversion(_output, profile);
+                    Novideo.SetColorSpaceConversion(_output, profile, TargetColorSpace);
                 }
             }
         }
@@ -156,7 +147,7 @@ namespace novideo_srgb
             OnPropertyChanged(nameof(Clamped));
         }
 
-        public bool CanClamp => UseEdid && _csc != null || UseIcc && File.Exists(ProfilePath);
+        public bool CanClamp => UseEdid && !EdidColorSpace.Equals(TargetColorSpace) || UseIcc && ProfilePath != "";
 
         public string GPU => _output.PhysicalGPU.FullName;
 
@@ -180,7 +171,22 @@ namespace novideo_srgb
 
         public double CustomPercentage { set; get; }
 
-        public bool IgnoreTRC { set; get; }
+        public int Target { set; get; }
+
+        private Colorimetry.ColorSpace EdidColorSpace { get; }
+
+        private Colorimetry.ColorSpace TargetColorSpace
+        {
+            get
+            {
+                switch (Target)
+                {
+                    case 1: return Colorimetry.DisplayP3;
+                    case 2: return Colorimetry.AdobeRGB;
+                    default: return Colorimetry.sRGB;
+                }
+            }
+        }
 
         public Novideo.DitherControl DitherControl => Novideo.GetDitherControl(_output);
 

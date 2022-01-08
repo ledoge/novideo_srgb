@@ -182,12 +182,17 @@ namespace novideo_srgb
             }
         }
 
+        public static void SetColorSpaceConversion(GPUOutput output, Matrix matrix)
+        {
+            SetColorSpaceConversion(output, MatrixToColorSpaceConversion(matrix));
+        }
+
         public static unsafe void SetColorSpaceConversion(GPUOutput output, ICCMatrixProfile profile,
-            ToneCurve curve = null,
-            bool ignoreTRC = false)
+            Colorimetry.ColorSpace target,
+            ToneCurve curve = null)
         {
             var matrix = Colorimetry.XYZScaleToD50(profile.matrix).Inverse() *
-                         Colorimetry.RGBToPCSXYZ(Colorimetry.sRGB);
+                         Colorimetry.RGBToPCSXYZ(target);
 
             if (curve == null)
             {
@@ -232,9 +237,7 @@ namespace novideo_srgb
                 {
                     for (var j = 0; j < 3; j++)
                     {
-                        var value = !ignoreTRC
-                            ? profile.trcs[j].SampleInverseAt(i / 1023d)
-                            : curve.SampleInverseAt(i / 1023d);
+                        var value = profile.trcs[j].SampleInverseAt(i / 1023d);
 
                         if (profile.vcgt != null)
                         {
@@ -279,7 +282,7 @@ namespace novideo_srgb
             }
         }
 
-        public static ColorSpaceConversion MatrixToColorSpaceConversion(Matrix matrix)
+        private static ColorSpaceConversion MatrixToColorSpaceConversion(Matrix matrix)
         {
             var csc = new ColorSpaceConversion
             {

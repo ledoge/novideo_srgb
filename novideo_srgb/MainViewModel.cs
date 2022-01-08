@@ -45,7 +45,7 @@ namespace novideo_srgb
                         (int)settings.Attribute("selected_gamma"),
                         (double)settings.Attribute("custom_gamma"),
                         (double?)settings.Attribute("custom_percentage") ?? 100,
-                        (bool?)settings.Attribute("ignore_trc") ?? false);
+                        (int?)settings.Attribute("target") ?? 0);
                 }
                 else
                 {
@@ -67,7 +67,7 @@ namespace novideo_srgb
                         new XAttribute("selected_gamma", x.SelectedGamma),
                         new XAttribute("custom_gamma", x.CustomGamma),
                         new XAttribute("custom_percentage", x.CustomPercentage),
-                        new XAttribute("ignore_trc", x.IgnoreTRC))));
+                        new XAttribute("target", x.Target))));
             xElem.Save(_configPath);
         }
     }

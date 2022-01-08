@@ -69,10 +69,18 @@ namespace novideo_srgb
             White = D65
         };
 
-        public static ColorSpace P3Display = new ColorSpace
+        public static ColorSpace DisplayP3 = new ColorSpace
         {
             Red = new Point { X = 0.68, Y = 0.32 },
             Green = new Point { X = 0.265, Y = 0.69 },
+            Blue = new Point { X = 0.15, Y = 0.06 },
+            White = D65
+        };
+
+        public static ColorSpace AdobeRGB = new ColorSpace
+        {
+            Red = new Point { X = 0.64, Y = 0.33 },
+            Green = new Point { X = 0.21, Y = 0.71 },
             Blue = new Point { X = 0.15, Y = 0.06 },
             White = D65
         };

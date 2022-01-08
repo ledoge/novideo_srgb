@@ -113,16 +113,16 @@ namespace novideo_srgb
             get => _monitor.CustomGamma;
         }
 
-        public bool IgnoreTRC
+        public int Target
         {
             set
             {
-                if (value == _monitor.IgnoreTRC) return;
-                _monitor.IgnoreTRC = value;
+                if (value == _monitor.Target) return;
+                _monitor.Target = value;
                 OnPropertyChanged();
                 ChangedCalibration = true;
             }
-            get => _monitor.IgnoreTRC;
+            get => _monitor.Target;
         }
 
         public double CustomPercentage
