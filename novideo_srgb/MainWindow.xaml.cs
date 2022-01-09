@@ -26,7 +26,7 @@ namespace novideo_srgb
             {
                 Owner = this
             };
-            window.ShowDialog();
+            if (window.ShowDialog() == false) return;
             if (window.ChangedCalibration)
             {
                 _viewModel.SaveConfig();

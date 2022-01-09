@@ -13,6 +13,14 @@ namespace novideo_srgb
 
         private MonitorData _monitor;
 
+        private int _target;
+        private bool _useIcc;
+        private string _profilePath;
+        private bool _calibrateGamma;
+        private int _selectedGamma;
+        private double _customGamma;
+        private double _customPercentage;
+
         private int _ditherState;
         private int _ditherMode;
         private int _ditherBits;
@@ -25,9 +33,36 @@ namespace novideo_srgb
         public AdvancedViewModel(MonitorData monitor, Novideo.DitherControl dither)
         {
             _monitor = monitor;
+
+            _target = monitor.Target;
+            _useIcc = monitor.UseIcc;
+            _profilePath = monitor.ProfilePath;
+            _calibrateGamma = monitor.CalibrateGamma;
+            _selectedGamma = monitor.SelectedGamma;
+            _customGamma = monitor.CustomGamma;
+            _customPercentage = monitor.CustomPercentage;
+
             _ditherBits = dither.bits;
             _ditherMode = dither.mode;
             _ditherState = dither.state;
+        }
+
+        public void ApplyChanges()
+        {
+            ChangedCalibration |= _monitor.Target != _target;
+            _monitor.Target = _target;
+            ChangedCalibration |= _monitor.UseIcc != _useIcc;
+            _monitor.UseIcc = _useIcc;
+            ChangedCalibration |= _monitor.ProfilePath != _profilePath;
+            _monitor.ProfilePath = _profilePath;
+            ChangedCalibration |= _monitor.CalibrateGamma != _calibrateGamma;
+            _monitor.CalibrateGamma = _calibrateGamma;
+            ChangedCalibration |= _monitor.SelectedGamma != _selectedGamma;
+            _monitor.SelectedGamma = _selectedGamma;
+            ChangedCalibration |= _monitor.CustomGamma != _customGamma;
+            _monitor.CustomGamma = _customGamma;
+            ChangedCalibration |= _monitor.CustomPercentage != _customPercentage;
+            _monitor.CustomPercentage = _customPercentage;
         }
 
         public ChromaticityCoordinates Coords => _monitor.Edid.DisplayParameters.ChromaticityCoordinates;
@@ -36,39 +71,36 @@ namespace novideo_srgb
         {
             set
             {
-                if (value == _monitor.UseEdid) return;
-                _monitor.UseEdid = value;
+                if (!value == _useIcc) return;
+                _useIcc = !value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(UseIcc));
-                ChangedCalibration = true;
             }
-            get => _monitor.UseEdid;
+            get => !_useIcc;
         }
 
         public bool UseIcc
         {
             set
             {
-                if (value == _monitor.UseIcc) return;
-                _monitor.UseIcc = value;
+                if (value == _useIcc) return;
+                _useIcc = value;
                 OnPropertyChanged(nameof(UseEdid));
                 OnPropertyChanged();
-                ChangedCalibration = true;
             }
-            get => _monitor.UseIcc;
+            get => _useIcc;
         }
 
         public string ProfilePath
         {
             set
             {
-                if (value == _monitor.ProfilePath) return;
-                _monitor.ProfilePath = value;
+                if (value == _profilePath) return;
+                _profilePath = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ProfileName));
-                ChangedCalibration = true;
             }
-            get => _monitor.ProfilePath;
+            get => _profilePath;
         }
 
         public string ProfileName => Path.GetFileName(ProfilePath);
@@ -77,25 +109,23 @@ namespace novideo_srgb
         {
             set
             {
-                if (value == _monitor.CalibrateGamma) return;
-                _monitor.CalibrateGamma = value;
+                if (value == _calibrateGamma) return;
+                _calibrateGamma = value;
                 OnPropertyChanged();
-                ChangedCalibration = true;
             }
-            get => _monitor.CalibrateGamma;
+            get => _calibrateGamma;
         }
 
         public int SelectedGamma
         {
             set
             {
-                if (value == _monitor.SelectedGamma) return;
-                _monitor.SelectedGamma = value;
+                if (value == _selectedGamma) return;
+                _selectedGamma = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(UseCustomGamma));
-                ChangedCalibration = true;
             }
-            get => _monitor.SelectedGamma;
+            get => _selectedGamma;
         }
 
         public Visibility UseCustomGamma =>
@@ -105,36 +135,33 @@ namespace novideo_srgb
         {
             set
             {
-                if (value == _monitor.CustomGamma) return;
-                _monitor.CustomGamma = value;
+                if (value == _customGamma) return;
+                _customGamma = value;
                 OnPropertyChanged();
-                ChangedCalibration = true;
             }
-            get => _monitor.CustomGamma;
+            get => _customGamma;
         }
 
         public int Target
         {
             set
             {
-                if (value == _monitor.Target) return;
-                _monitor.Target = value;
+                if (value == _target) return;
+                _target = value;
                 OnPropertyChanged();
-                ChangedCalibration = true;
             }
-            get => _monitor.Target;
+            get => _target;
         }
 
         public double CustomPercentage
         {
             set
             {
-                if (value == _monitor.CustomPercentage) return;
-                _monitor.CustomPercentage = value;
+                if (value == _customPercentage) return;
+                _customPercentage = value;
                 OnPropertyChanged();
-                ChangedCalibration = true;
             }
-            get => _monitor.CustomPercentage;
+            get => _customPercentage;
         }
 
         public bool ChangedCalibration { get; set; }
