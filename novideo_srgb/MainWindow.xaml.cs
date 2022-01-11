@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Windows;
 
 namespace novideo_srgb
@@ -35,8 +36,8 @@ namespace novideo_srgb
 
             if (window.ChangedDither)
             {
-                monitor?.ApplyDither(window.DitherState.SelectedIndex, window.DitherBits.SelectedIndex,
-                    window.DitherMode.SelectedIndex);
+                monitor?.ApplyDither(window.DitherState.SelectedIndex, Math.Max(window.DitherBits.SelectedIndex, 0),
+                    Math.Max(window.DitherMode.SelectedIndex, 0));
             }
         }
     }

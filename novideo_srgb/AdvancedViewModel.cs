@@ -174,6 +174,8 @@ namespace novideo_srgb
                 _ditherState = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CustomDither));
+                OnPropertyChanged(nameof(DitherMode));
+                OnPropertyChanged(nameof(DitherBits));
                 ChangedDither = true;
             }
             get => _ditherState;
@@ -188,7 +190,7 @@ namespace novideo_srgb
                 OnPropertyChanged();
                 ChangedDither = true;
             }
-            get => _ditherMode;
+            get => _ditherState == 0 ? -1 : _ditherMode;
         }
 
         public int DitherBits
@@ -200,7 +202,7 @@ namespace novideo_srgb
                 OnPropertyChanged();
                 ChangedDither = true;
             }
-            get => _ditherBits;
+            get => _ditherState == 0 ? -1 : _ditherBits;
         }
 
         public bool CustomDither => DitherState == 1;
