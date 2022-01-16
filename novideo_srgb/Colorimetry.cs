@@ -85,6 +85,8 @@ namespace novideo_srgb
             White = D65
         };
 
+        public static ColorSpace[] ColorSpaces => new[] { sRGB, DisplayP3, AdobeRGB };
+
         public static Matrix D50 = Matrix.FromValues(new[,] { { 0.9642 }, { 1 }, { 0.8249 } });
 
         public static Matrix RGBToXYZ(ColorSpace colorSpace)

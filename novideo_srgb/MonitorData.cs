@@ -18,7 +18,6 @@ namespace novideo_srgb
 
         private readonly GPUOutput _output;
         private bool _clamped;
-        private bool _illegalChromaticies;
 
         public MonitorData(int number, Display display, uint id)
         {
@@ -40,11 +39,6 @@ namespace novideo_srgb
                 Blue = new Colorimetry.Point { X = Math.Round(coords.BlueX, 3), Y = Math.Round(coords.BlueY, 3) },
                 White = Colorimetry.D65
             };
-
-            if (Edid.DisplayParameters.IsStandardSRGBColorSpace)
-            {
-                _illegalChromaticies = true;
-            }
 
             _clamped = Novideo.IsColorSpaceConversionActive(_output);
 
@@ -150,8 +144,6 @@ namespace novideo_srgb
 
         public string GPU => _output.PhysicalGPU.FullName;
 
-        public bool IllegalChromaticities => _illegalChromaticies;
-
         public bool UseEdid
         {
             set => UseIcc = !value;
@@ -172,20 +164,9 @@ namespace novideo_srgb
 
         public int Target { set; get; }
 
-        private Colorimetry.ColorSpace EdidColorSpace { get; }
+        public Colorimetry.ColorSpace EdidColorSpace { get; }
 
-        private Colorimetry.ColorSpace TargetColorSpace
-        {
-            get
-            {
-                switch (Target)
-                {
-                    case 1: return Colorimetry.DisplayP3;
-                    case 2: return Colorimetry.AdobeRGB;
-                    default: return Colorimetry.sRGB;
-                }
-            }
-        }
+        private Colorimetry.ColorSpace TargetColorSpace => Colorimetry.ColorSpaces[Target];
 
         public Novideo.DitherControl DitherControl => Novideo.GetDitherControl(_output);
 

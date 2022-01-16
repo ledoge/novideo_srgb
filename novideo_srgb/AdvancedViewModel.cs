@@ -75,6 +75,7 @@ namespace novideo_srgb
                 _useIcc = !value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(UseIcc));
+                OnPropertyChanged(nameof(EdidWarning));
             }
             get => !_useIcc;
         }
@@ -85,8 +86,9 @@ namespace novideo_srgb
             {
                 if (value == _useIcc) return;
                 _useIcc = value;
-                OnPropertyChanged(nameof(UseEdid));
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(UseEdid));
+                OnPropertyChanged(nameof(EdidWarning));
             }
             get => _useIcc;
         }
@@ -149,9 +151,14 @@ namespace novideo_srgb
                 if (value == _target) return;
                 _target = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(EdidWarning));
             }
             get => _target;
         }
+
+        public Visibility EdidWarning => UseEdid && Colorimetry.ColorSpaces[_target].Equals(_monitor.EdidColorSpace)
+            ? Visibility.Visible
+            : Visibility.Collapsed;
 
         public double CustomPercentage
         {
