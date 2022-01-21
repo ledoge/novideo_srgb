@@ -11,6 +11,6 @@ ICC profiles are also supported and can either be used to only remap the gamut (
 # Notes for use with ICC profiles
 
 * To achieve a full calibration, you must enable the `Calibrate gamma to` checkbox and select your desired gamma target. This is independent from the gamma you chose to calibrate to when creating the profile.
-* For the gamma options to work properly, the profile's tone response curves must report the black point accurately. Using DisplayCAL, this means that `Profile type` has to be set to `Curves + matrix` or `Single curve + matrix`, and `Black point compensation` must be disabled (enable `Show advanced options` under `Options` to see these settings). `Tone curve` should be set to some (any) target. For `Curves + matrix` profiles, it can also be set to `As measured` instead, but that'll probably require a larger testchart to not get worse accuracy.
+* For the gamma options to work properly, the profile must report the display's black point accurately. DisplayCAL's default settings, e.g. with the sRGB preset, work fine.
 * Since the color space conversion is done on the GPU side, the ICC profile must not be selected/loaded in Windows or any other application. If you want, you can do another profiling run on top of the active calibration and then use this profile in applications that support color management to achieve even better color accuracy.
-* Only the VCGT (if present), TRC and PCS matrix parts of an ICC profile are used.
+* Only the VCGT (if present), TRC and PCS matrix parts of an ICC profile are used. If present, the A2B1 data is used to calculate (hopefully) higher quality TRC and PCS matrix values.
