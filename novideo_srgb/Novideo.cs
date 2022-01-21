@@ -191,8 +191,7 @@ namespace novideo_srgb
             Colorimetry.ColorSpace target,
             ToneCurve curve = null)
         {
-            var matrix = Colorimetry.XYZScaleToD50(profile.matrix).Inverse() *
-                         Colorimetry.RGBToPCSXYZ(target);
+            var matrix = profile.matrix.Inverse() * Colorimetry.RGBToPCSXYZ(target);
 
             if (curve == null)
             {

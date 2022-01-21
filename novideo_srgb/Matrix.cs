@@ -115,6 +115,61 @@ namespace novideo_srgb
             return result;
         }
 
+        public static Matrix operator *(Matrix a, double b)
+        {
+            return b * a;
+        }
+
+        public static Matrix operator /(double a, Matrix b)
+        {
+            return 1 / a * b;
+        }
+
+        public static Matrix operator /(Matrix a, double b)
+        {
+            return a * (1 / b);
+        }
+
+        public static Matrix operator +(Matrix a, Matrix b)
+        {
+            if (a.Cols != b.Cols)
+            {
+                throw new ArgumentException("Both sides must have same size");
+            }
+
+            var result = b.Cols == 1 ? Zero3x1() : Zero3x3();
+
+            for (var i = 0; i < result.Rows; i++)
+            {
+                for (var j = 0; j < result.Cols; j++)
+                {
+                    result[i, j] = a[i, j] + b[i, j];
+                }
+            }
+
+            return result;
+        }
+
+        public static Matrix operator -(Matrix a, Matrix b)
+        {
+            if (a.Cols != b.Cols)
+            {
+                throw new ArgumentException("Both sides must have same size");
+            }
+
+            var result = b.Cols == 1 ? Zero3x1() : Zero3x3();
+
+            for (var i = 0; i < result.Rows; i++)
+            {
+                for (var j = 0; j < result.Cols; j++)
+                {
+                    result[i, j] = a[i, j] - b[i, j];
+                }
+            }
+
+            return result;
+        }
+
         public Matrix Inverse()
         {
             if (Cols != 3)

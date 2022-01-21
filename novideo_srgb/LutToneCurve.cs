@@ -3,25 +3,27 @@
     public class LutToneCurve : ToneCurve
     {
         private ushort[] _values;
+        private ushort _divisor;
 
-        public LutToneCurve(ushort[] values)
+        public LutToneCurve(ushort[] values, ushort divisor = ushort.MaxValue)
         {
             _values = values;
+            _divisor = divisor;
         }
 
         public double SampleAt(double x)
         {
-            if (x == 0) return (double)_values[0] / ushort.MaxValue;
-            if (x >= 1) return (double)_values[_values.Length - 1] / ushort.MaxValue;
+            if (x == 0) return (double)_values[0] / _divisor;
+            if (x >= 1) return (double)_values[_values.Length - 1] / _divisor;
 
             var index = x * (_values.Length - 1);
             var frac = index - (uint)index;
-            return (_values[(uint)index] * (1 - frac) + _values[(uint)index + 1] * frac) / ushort.MaxValue;
+            return (_values[(uint)index] * (1 - frac) + _values[(uint)index + 1] * frac) / _divisor;
         }
 
         public double SampleInverseAt(double x)
         {
-            var value = x * ushort.MaxValue;
+            var value = x * _divisor;
             var lowValue = (ushort)value;
 
             if (_values[0] >= value) return 0;

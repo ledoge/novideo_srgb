@@ -46,7 +46,12 @@ namespace novideo_srgb
 
         public double ReadS15Fixed16()
         {
-            return ReadInt32() / 65536f;
+            return ReadInt32() / 65536d;
+        }
+
+        public double ReadCIEXYZ()
+        {
+            return ReadUInt16() / 32768d;
         }
     }
 }
