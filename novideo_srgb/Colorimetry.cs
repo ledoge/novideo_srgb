@@ -135,7 +135,7 @@ namespace novideo_srgb
             });
             var awd = bradford * whiteXYZ;
             var m = bradford.Inverse() * Matrix.FromDiagonal(new[]
-                { awd[0, 0] / aws[0, 0], awd[1, 0] / aws[1, 0], awd[2, 0] / aws[2, 0] }) * bradford;
+                { awd[0] / aws[0], awd[1] / aws[1], awd[2] / aws[2] }) * bradford;
             return m * xyz;
         }
 
@@ -157,7 +157,7 @@ namespace novideo_srgb
             {
                 for (var j = 0; j < 3; j++)
                 {
-                    result[i, j] = matrix[i, j] * target[i, 0] / white[i, 0];
+                    result[i, j] = matrix[i, j] * target[i] / white[i];
                 }
             }
 

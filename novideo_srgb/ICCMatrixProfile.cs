@@ -110,66 +110,20 @@ namespace novideo_srgb
                             }
                         }
 
-                        var pos = reader.BaseStream.Position;
-                        var primaries = new Matrix[3];
+                        var clut = new ushort[lutPoints, lutPoints, lutPoints, 3];
+                        for (var r = 0; r < lutPoints; r++)
                         {
-                            var primaryIndex = lutPoints - 1;
-                            for (var j = 0; j < 3; j++)
+                            for (var g = 0; g < lutPoints; g++)
                             {
-                                var primary = Matrix.Zero3x1();
-                                primaries[2 - j] = primary;
-
-                                reader.BaseStream.Seek(pos + 2 * 3 * primaryIndex, SeekOrigin.Begin);
-                                for (var k = 0; k < 3; k++)
+                                for (var b = 0; b < lutPoints; b++)
                                 {
-                                    primary[k, 0] = reader.ReadCIEXYZ();
-                                }
-
-                                primaryIndex *= lutPoints;
-                            }
-                        }
-                        var grayscale = new LutToneCurve[3];
-                        {
-                            var tables = new ushort[3][];
-                            for (var j = 0; j < 3; j++)
-                            {
-                                tables[j] = new ushort[lutPoints];
-                            }
-
-                            for (var j = 0; j < lutPoints; j++)
-                            {
-                                reader.BaseStream.Seek(pos + 2 * 3 * j * (lutPoints * lutPoints + lutPoints + 1),
-                                    SeekOrigin.Begin);
-                                for (var k = 0; k < 3; k++)
-                                {
-                                    tables[k][j] = reader.ReadUInt16();
+                                    for (var j = 0; j < 3; j++)
+                                    {
+                                        clut[r, g, b, j] = reader.ReadUInt16();
+                                    }
                                 }
                             }
-
-                            for (var j = 0; j < 3; j++)
-                            {
-                                grayscale[j] = new LutToneCurve(tables[j], 32768);
-                            }
                         }
-
-                        var black = Matrix.FromValues(new[,]
-                        {
-                            { grayscale[0].SampleAt(0) }, { grayscale[1].SampleAt(0) }, { grayscale[2].SampleAt(0) }
-                        });
-
-                        var Mprime = Matrix.Zero3x3();
-                        for (var j = 0; j < 3; j++)
-                        {
-                            var purePrimary = primaries[j] - black;
-                            for (var k = 0; k < 3; k++)
-                            {
-                                Mprime[k, j] = purePrimary[k, 0] / purePrimary[1, 0];
-                            }
-                        }
-
-                        var M = Mprime * Matrix.FromDiagonal(Mprime.Inverse() * Colorimetry.D50);
-                        var Minv = M.Inverse();
-                        result.matrix = M;
 
                         var output = new LutToneCurve[3];
                         for (var j = 0; j < 3; j++)
@@ -183,6 +137,30 @@ namespace novideo_srgb
                             output[j] = new LutToneCurve(table);
                         }
 
+                        var lut16 = new Lut16(input, clut, output);
+                        var black = lut16.SampleGrayscaleAt(0);
+
+                        var primaries = new[]
+                        {
+                            lut16.SampleAt(inputEntries - 1, 0, 0),
+                            lut16.SampleAt(0, inputEntries - 1, 0),
+                            lut16.SampleAt(0, 0, inputEntries - 1)
+                        };
+
+                        var Mprime = Matrix.Zero3x3();
+                        for (var j = 0; j < 3; j++)
+                        {
+                            var purePrimary = primaries[j] - black;
+                            for (var k = 0; k < 3; k++)
+                            {
+                                Mprime[k, j] = purePrimary[k] / purePrimary[1];
+                            }
+                        }
+
+                        var M = Mprime * Matrix.FromDiagonal(Mprime.Inverse() * Colorimetry.D50);
+                        var Minv = M.Inverse();
+                        result.matrix = M;
+
                         var trcs = new double[3][];
                         for (var j = 0; j < 3; j++)
                         {
@@ -191,17 +169,12 @@ namespace novideo_srgb
 
                         for (var j = 0; j < inputEntries - 1; j++)
                         {
-                            var values = Matrix.Zero3x1();
-                            for (var k = 0; k < 3; k++)
-                            {
-                                values[k, 0] = output[k]
-                                    .SampleAt(grayscale[k].SampleAt((double)input[k, j] / ushort.MaxValue));
-                            }
+                            var values = lut16.SampleGrayscaleAt(j);
 
                             var toneResponse = Minv * values;
                             for (var k = 0; k < 3; k++)
                             {
-                                trcs[k][j] = Math.Max(toneResponse[k, 0], 0);
+                                trcs[k][j] = Math.Max(toneResponse[k], 0);
                             }
                         }
 

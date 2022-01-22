@@ -16,6 +16,28 @@ namespace novideo_srgb
             set => _values[x, y] = value;
         }
 
+        public double this[int x]
+        {
+            get
+            {
+                if (Cols != 1)
+                {
+                    throw new NotSupportedException("Matrix must be 3x1");
+                }
+
+                return _values[x, 0];
+            }
+            set
+            {
+                if (Cols != 1)
+                {
+                    throw new NotSupportedException("Matrix must be 3x1");
+                }
+
+                _values[x, 0] = value;
+            }
+        }
+
         public int Rows => _values.GetLength(0);
         public int Cols => _values.GetLength(1);
 
@@ -74,7 +96,7 @@ namespace novideo_srgb
                 throw new ArgumentException("Matrix must be 3x1");
             }
 
-            return FromDiagonal(new[] { column[0, 0], column[1, 0], column[2, 0] });
+            return FromDiagonal(new[] { column[0], column[1], column[2] });
         }
 
         public static Matrix operator *(Matrix a, Matrix b)
@@ -194,6 +216,20 @@ namespace novideo_srgb
                 { -d * i + f * g, a * i - c * g, -a * f + c * d },
                 { d * h - e * g, -a * h + b * g, a * e - b * d }
             });
+        }
+
+        public Matrix Map(Func<double, double> func)
+        {
+            var result = Cols == 1 ? Zero3x1() : Zero3x3();
+            for (var i = 0; i < result.Rows; i++)
+            {
+                for (var j = 0; j < result.Cols; j++)
+                {
+                    result[i, j] = func(this[i, j]);
+                }
+            }
+
+            return result;
         }
     }
 }
