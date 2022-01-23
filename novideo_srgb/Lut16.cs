@@ -27,12 +27,12 @@ namespace novideo_srgb
 
         public Matrix SampleAt(int r, int g, int b)
         {
-            var result = Matrix.FromValues(new double[,]
+            var result = Matrix.FromValues(new[,]
             {
-                { inputCurves[0, r] },
-                { inputCurves[1, g] },
-                { inputCurves[2, b] }
-            }) / ushort.MaxValue;
+                { inputCurves[0, r] / (double)ushort.MaxValue },
+                { inputCurves[1, g] / (double)ushort.MaxValue },
+                { inputCurves[2, b] / (double)ushort.MaxValue }
+            });
 
             result = SampleCLUTTetrahedral(result);
 
@@ -49,11 +49,11 @@ namespace novideo_srgb
             x = Math.Min(x, _lutSize - 1);
             y = Math.Min(y, _lutSize - 1);
             z = Math.Min(z, _lutSize - 1);
-            var sample0 = _lut[x, y, z, 0];
-            var sample1 = _lut[x, y, z, 1];
-            var sample2 = _lut[x, y, z, 2];
+            var sample0 = _lut[x, y, z, 0] / (double)ushort.MaxValue;
+            var sample1 = _lut[x, y, z, 1] / (double)ushort.MaxValue;
+            var sample2 = _lut[x, y, z, 2] / (double)ushort.MaxValue;
 
-            return Matrix.FromValues(new double[,] { { sample0 }, { sample1 }, { sample2 } }) / 32768;
+            return Matrix.FromValues(new[,] { { sample0 }, { sample1 }, { sample2 } });
         }
 
         private Matrix S(double x, double y, double z)

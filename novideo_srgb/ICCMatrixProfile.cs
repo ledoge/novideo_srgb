@@ -134,7 +134,7 @@ namespace novideo_srgb
                                 table[k] = reader.ReadUInt16();
                             }
 
-                            output[j] = new LutToneCurve(table);
+                            output[j] = new LutToneCurve(table, 32768);
                         }
 
                         var lut16 = new Lut16(input, clut, output);
@@ -174,7 +174,7 @@ namespace novideo_srgb
                             var toneResponse = Minv * values;
                             for (var k = 0; k < 3; k++)
                             {
-                                trcs[k][j] = Math.Max(toneResponse[k], 0);
+                                trcs[k][j] = Math.Min(Math.Max(toneResponse[k], 0), 1);
                             }
                         }
 
