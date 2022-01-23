@@ -101,13 +101,16 @@ namespace novideo_srgb
                         var inputEntries = reader.ReadUInt16();
                         var outputEntries = reader.ReadUInt16();
 
-                        var input = new ushort[3, inputEntries];
+                        var input = new ToneCurve[3];
                         for (var j = 0; j < 3; j++)
                         {
+                            var table = new ushort[inputEntries];
                             for (var k = 0; k < inputEntries; k++)
                             {
-                                input[j, k] = reader.ReadUInt16();
+                                table[k] = reader.ReadUInt16();
                             }
+
+                            input[j] = new LutToneCurve(table);
                         }
 
                         var clut = new ushort[lutPoints, lutPoints, lutPoints, 3];
@@ -142,9 +145,9 @@ namespace novideo_srgb
 
                         var primaries = new[]
                         {
-                            lut16.SampleAt(inputEntries - 1, 0, 0),
-                            lut16.SampleAt(0, inputEntries - 1, 0),
-                            lut16.SampleAt(0, 0, inputEntries - 1)
+                            lut16.SampleAt(1, 0, 0),
+                            lut16.SampleAt(0, 1, 0),
+                            lut16.SampleAt(0, 0, 1)
                         };
 
                         var Mprime = Matrix.Zero3x3();
@@ -161,15 +164,16 @@ namespace novideo_srgb
                         var Minv = M.Inverse();
                         result.matrix = M;
 
+                        const int trcSize = 4096;
                         var trcs = new double[3][];
                         for (var j = 0; j < 3; j++)
                         {
-                            trcs[j] = new double[inputEntries];
+                            trcs[j] = new double[trcSize];
                         }
 
-                        for (var j = 0; j < inputEntries - 1; j++)
+                        for (var j = 0; j < trcSize - 1; j++)
                         {
-                            var values = lut16.SampleGrayscaleAt(j);
+                            var values = lut16.SampleGrayscaleAt(j / (double)trcSize);
 
                             var toneResponse = Minv * values;
                             for (var k = 0; k < 3; k++)
@@ -180,7 +184,7 @@ namespace novideo_srgb
 
                         for (var j = 0; j < 3; j++)
                         {
-                            trcs[j][inputEntries - 1] = 1;
+                            trcs[j][trcSize - 1] = 1;
                             result.trcs[j] = new DoubleToneCurve(trcs[j]);
                         }
                     }

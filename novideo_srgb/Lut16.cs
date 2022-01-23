@@ -7,31 +7,30 @@ namespace novideo_srgb
         private ushort[,,,] _lut;
         private int _lutSize;
 
-        private ushort[,] inputCurves;
+        private ToneCurve[] inputCurves;
         private ToneCurve[] outputCurves;
 
-        public Lut16(ushort[,] input, ushort[,,,] lut, ToneCurve[] output)
+        public Lut16(ToneCurve[] input, ushort[,,,] lut, ToneCurve[] output)
         {
             _lut = lut;
             _lutSize = _lut.GetLength(0);
 
             inputCurves = input;
-
             outputCurves = output;
         }
 
-        public Matrix SampleGrayscaleAt(int index)
+        public Matrix SampleGrayscaleAt(double index)
         {
             return SampleAt(index, index, index);
         }
 
-        public Matrix SampleAt(int r, int g, int b)
+        public Matrix SampleAt(double r, double g, double b)
         {
             var result = Matrix.FromValues(new[,]
             {
-                { inputCurves[0, r] / (double)ushort.MaxValue },
-                { inputCurves[1, g] / (double)ushort.MaxValue },
-                { inputCurves[2, b] / (double)ushort.MaxValue }
+                { inputCurves[0].SampleAt(r) },
+                { inputCurves[1].SampleAt(g) },
+                { inputCurves[2].SampleAt(b) }
             });
 
             result = SampleCLUTTetrahedral(result);
