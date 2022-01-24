@@ -173,7 +173,7 @@ namespace novideo_srgb
 
                         for (var j = 0; j < trcSize - 1; j++)
                         {
-                            var values = lut16.SampleGrayscaleAt(j / (double)trcSize);
+                            var values = lut16.SampleGrayscaleAt(j / (double)(trcSize - 1));
 
                             var toneResponse = Minv * values;
                             for (var k = 0; k < 3; k++)
