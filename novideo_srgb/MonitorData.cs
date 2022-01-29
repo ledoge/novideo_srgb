@@ -81,7 +81,14 @@ namespace novideo_srgb
                 var profile = ICCMatrixProfile.FromFile(ProfilePath);
                 if (CalibrateGamma)
                 {
-                    var black = profile.trcs.Min(x => x.SampleAt(0));
+                    var trcBlack = Matrix.FromValues(new[,]
+                    {
+                        { profile.trcs[0].SampleAt(0) },
+                        { profile.trcs[1].SampleAt(0) },
+                        { profile.trcs[2].SampleAt(0) }
+                    });
+                    var black = (profile.matrix * trcBlack)[1];
+                    
                     ToneCurve gamma;
                     switch (SelectedGamma)
                     {
