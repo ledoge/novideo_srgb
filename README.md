@@ -1,4 +1,16 @@
-## [Download latest release](https://github.com/ledoge/novideo_srgb/releases/latest/download/release.zip)
+Fork of [ledoge/novideo_srgb](https://github.com/ledoge/novideo_srgb) created to familiarize myself with modern .NET and add some requested features. For now see the original repo if you are just looking to download and use this app. This fork does not yet offer any additional functionality.
+
+Goals of this fork:
+* Upgrade from .NET Framework 4.8 to .NET 6 (completed)
+* Separate domain logic into its own assembly (completed)
+* Adopt modern .NET design practices like dependency injection (in progress)
+* Feature to listen for changes between SDR and HDR modes in Windows and automatically disable the clamp when in HDR (not started)
+* Background operation ("minimize to tray") (not started)
+* Build a CLI assembly for users looking to automate operation (not started)
+* Port WPF app to WinUI 3 or create separate WinUI 3 version (not started)
+* Xbox Game Bar overlay widget (not started, dependent on WinUI)
+
+----------------
 
 # About
 This tool uses an undocumented NVIDIA API, supported on Fermi and later, to convert colors before sending them to a wide gamut monitor to effectively clamp it to sRGB (alternatively, Display P3 or Adobe RGB), based on the chromaticities provided in its EDID. AMD supports this as a hidden setting in their drivers, but NVIDIA doesn't because ???.
