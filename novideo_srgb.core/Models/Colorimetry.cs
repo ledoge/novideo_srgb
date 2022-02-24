@@ -1,6 +1,6 @@
 ﻿// credit to https://mina86.com/2019/srgb-xyz-matrix/ and http://www.brucelindbloom.com/ for the math
 
-namespace novideo_srgb
+namespace novideo_srgb.core.Models
 {
     public static class Colorimetry
     {

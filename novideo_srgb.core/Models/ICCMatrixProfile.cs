@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace novideo_srgb
+﻿namespace novideo_srgb.core.Models
 {
     public class ICCMatrixProfile
     {

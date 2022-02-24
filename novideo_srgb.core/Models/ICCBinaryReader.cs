@@ -1,7 +1,6 @@
-﻿using System.IO;
-using System.Net;
+﻿using System.Net;
 
-namespace novideo_srgb
+namespace novideo_srgb.core.Models
 {
     public class ICCBinaryReader : BinaryReader
     {

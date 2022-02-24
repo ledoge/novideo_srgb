@@ -1,10 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Runtime.InteropServices;
-using EDIDParser;
+﻿using EDIDParser;
 using Microsoft.Win32;
 using NvAPIWrapper.Display;
 using NvAPIWrapper.GPU;
+using System.Runtime.InteropServices;
 
 /*
 no NDAs violated here!
@@ -12,7 +10,7 @@ everything figured out from publicly available information and/or
 throwing stuff at NVAPI and observing the results or errors
 */
 
-namespace novideo_srgb
+namespace novideo_srgb.core.Models
 {
     public static class Novideo
     {
@@ -116,7 +114,8 @@ namespace novideo_srgb
 
             var result = new ColorSpaceConversion
             {
-                contentColorSpace = csc.contentColorSpace, monitorColorSpace = csc.monitorColorSpace
+                contentColorSpace = csc.contentColorSpace,
+                monitorColorSpace = csc.monitorColorSpace
             };
 
             for (var i = 0; i < 3; i++)
@@ -285,7 +284,9 @@ namespace novideo_srgb
         {
             var csc = new ColorSpaceConversion
             {
-                contentColorSpace = 2, monitorColorSpace = 2, matrix1 = new float[3, 4]
+                contentColorSpace = 2,
+                monitorColorSpace = 2,
+                matrix1 = new float[3, 4]
             };
 
             for (var i = 0; i < 3; i++)
@@ -302,7 +303,7 @@ namespace novideo_srgb
         public static DitherControl GetDitherControl(GPUOutput output)
         {
             var dither = new Dither
-                { version = 0x10018 };
+            { version = 0x10018 };
             var status = NvAPI_GPU_GetDitherControl(output.PhysicalGPU.GetDisplayDeviceByOutput(output).DisplayId,
                 ref dither);
             if (status != 0)

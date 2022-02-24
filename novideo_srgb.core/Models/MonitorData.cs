@@ -1,16 +1,12 @@
-﻿using System;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Windows;
-using EDIDParser;
+﻿using EDIDParser;
 using EDIDParser.Descriptors;
 using EDIDParser.Enums;
 using NvAPIWrapper.Display;
 using NvAPIWrapper.GPU;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
-namespace novideo_srgb
+namespace novideo_srgb.core.Models
 {
     public class MonitorData : INotifyPropertyChanged
     {
@@ -125,13 +121,12 @@ namespace novideo_srgb
                 {
                     UpdateClamp(value);
                 }
-                catch (Exception e)
+                catch
                 {
-                    MessageBox.Show(e.Message);
                     _clamped = Novideo.IsColorSpaceConversionActive(_output);
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(CanClamp));
-                    return;
+                    throw;
                 }
 
                 _clamped = value;
@@ -177,17 +172,7 @@ namespace novideo_srgb
 
         public Novideo.DitherControl DitherControl => Novideo.GetDitherControl(_output);
 
-        public void ApplyDither(int state, int bits, int mode)
-        {
-            try
-            {
-                Novideo.SetDitherControl(_output, state, bits, mode);
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message);
-            }
-        }
+        public void ApplyDither(int state, int bits, int mode) => Novideo.SetDitherControl(_output, state, bits, mode);
 
         private void OnPropertyChanged([CallerMemberName] string name = null)
         {

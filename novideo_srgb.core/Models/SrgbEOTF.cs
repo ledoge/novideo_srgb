@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace novideo_srgb
+namespace novideo_srgb.core.Models
 {
     public class SrgbEOTF : ToneCurve
     {

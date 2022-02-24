@@ -1,4 +1,6 @@
-﻿using System;
+﻿using novideo_srgb.core;
+using novideo_srgb.core.Models;
+using System;
 using System.Linq;
 using System.Windows;
 
@@ -7,9 +9,12 @@ namespace novideo_srgb
     public partial class MainWindow
     {
         private readonly MainViewModel _viewModel;
+        private readonly IServiceProvider _serviceProvider;
 
         public MainWindow()
         {
+            _serviceProvider = ServiceHelpers.GetServiceProvider();
+
             InitializeComponent();
             _viewModel = (MainViewModel)DataContext;
         }
@@ -31,13 +36,27 @@ namespace novideo_srgb
             if (window.ChangedCalibration)
             {
                 _viewModel.SaveConfig();
-                monitor?.ReapplyClamp();
+                TryWithMessage(() => monitor?.ReapplyClamp());
             }
 
             if (window.ChangedDither)
             {
-                monitor?.ApplyDither(window.DitherState.SelectedIndex, Math.Max(window.DitherBits.SelectedIndex, 0),
-                    Math.Max(window.DitherMode.SelectedIndex, 0));
+                TryWithMessage(() => monitor?.ApplyDither(window.DitherState.SelectedIndex,
+                                                          Math.Max(window.DitherBits.SelectedIndex, 0),
+                                                          Math.Max(window.DitherMode.SelectedIndex, 0)));
+            }
+        }
+
+        //I don't like this but I needed to move some GUI logic out of MonitorData
+        private void TryWithMessage(Action doStuff)
+        {
+            try
+            {
+                doStuff();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
     }

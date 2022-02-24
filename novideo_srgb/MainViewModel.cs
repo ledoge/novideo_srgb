@@ -1,10 +1,11 @@
-﻿using System;
+﻿using novideo_srgb.core.Models;
+using NvAPIWrapper.Display;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using NvAPIWrapper.Display;
 
 namespace novideo_srgb
 {

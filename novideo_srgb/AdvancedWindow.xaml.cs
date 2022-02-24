@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using novideo_srgb.core.Models;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace novideo_srgb
