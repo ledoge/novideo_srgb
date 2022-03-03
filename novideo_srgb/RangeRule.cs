@@ -1,44 +1,42 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 using System.Windows.Controls;
 using static System.Double;
 
-namespace novideo_srgb
+namespace novideo_srgb;
+
+public class RangeRule : ValidationRule
 {
-    public class RangeRule : ValidationRule
+    public int Min { get; set; }
+    public int Max { get; set; }
+
+    public override ValidationResult Validate(object valueObj, CultureInfo cultureInfo)
     {
-        public int Min { get; set; }
-        public int Max { get; set; }
+        if (valueObj == null) return null;
 
-        public override ValidationResult Validate(object valueObj, CultureInfo cultureInfo)
+        var valueString = (string)valueObj;
+        if (valueString.EndsWith("."))
         {
-            if (valueObj == null) return null;
-
-            var valueString = (string)valueObj;
-            if (valueString.EndsWith("."))
-            {
-                return new ValidationResult(false, "Input must not end in '.'");
-            }
-
-            double value = 0;
-            try
-            {
-                if (valueString.Length > 0)
-                    value = Parse(valueString.Replace(',', 'a'), CultureInfo.InvariantCulture);
-            }
-            catch (Exception e)
-            {
-                return new ValidationResult(false, $"Illegal characters or {e.Message}");
-            }
-
-            if (value < Min || value > Max)
-            {
-                return new ValidationResult(false,
-                    $"Value must be between {Min} and {Max}");
-            }
-
-            return ValidationResult.ValidResult;
+            return new ValidationResult(false, "Input must not end in '.'");
         }
+
+        double value = 0;
+        try
+        {
+            if (valueString.Length > 0)
+                value = Parse(valueString.Replace(',', 'a'), CultureInfo.InvariantCulture);
+        }
+        catch (Exception e)
+        {
+            return new ValidationResult(false, $"Illegal characters or {e.Message}");
+        }
+
+        if (value < Min || value > Max)
+        {
+            return new ValidationResult(false,
+                $"Value must be between {Min} and {Max}");
+        }
+
+        return ValidationResult.ValidResult;
     }
 }

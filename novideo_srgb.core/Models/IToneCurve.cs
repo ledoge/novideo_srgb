@@ -1,8 +1,7 @@
-﻿namespace novideo_srgb.core.Models
+﻿namespace novideo_srgb.core.Models;
+
+public interface IToneCurve
 {
-    public interface IToneCurve
-    {
-        double SampleAt(double x);
-        double SampleInverseAt(double x);
-    }
+    double SampleAt(double x);
+    double SampleInverseAt(double x);
 }

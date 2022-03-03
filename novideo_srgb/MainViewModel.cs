@@ -7,69 +7,68 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace novideo_srgb
+namespace novideo_srgb;
+
+internal class MainViewModel
 {
-    internal class MainViewModel
+    public ObservableCollection<MonitorData> Monitors { get; }
+
+    private string _configPath;
+
+    public MainViewModel()
     {
-        public ObservableCollection<MonitorData> Monitors { get; }
+        Monitors = new ObservableCollection<MonitorData>();
+        _configPath = AppDomain.CurrentDomain.BaseDirectory + "config.xml";
+        UpdateMonitors();
+    }
 
-        private string _configPath;
-
-        public MainViewModel()
+    public void UpdateMonitors()
+    {
+        Monitors.Clear();
+        List<XElement> config = null;
+        if (File.Exists(_configPath))
         {
-            Monitors = new ObservableCollection<MonitorData>();
-            _configPath = AppDomain.CurrentDomain.BaseDirectory + "config.xml";
-            UpdateMonitors();
+            config = XElement.Load(_configPath).Descendants("monitor").ToList();
         }
 
-        public void UpdateMonitors()
+        var number = 1;
+        foreach (var display in Display.GetDisplays())
         {
-            Monitors.Clear();
-            List<XElement> config = null;
-            if (File.Exists(_configPath))
+            var id = display.DisplayDevice.DisplayId;
+            var settings = config?.FirstOrDefault(x => (uint)x.Attribute("id") == id);
+            MonitorData monitor;
+            if (settings != null)
             {
-                config = XElement.Load(_configPath).Descendants("monitor").ToList();
+                monitor = new MonitorData(number++, display,
+                    (bool)settings.Attribute("use_icc"),
+                    (string)settings.Attribute("icc_path"),
+                    (bool)settings.Attribute("calibrate_gamma"),
+                    (int)settings.Attribute("selected_gamma"),
+                    (double)settings.Attribute("custom_gamma"),
+                    (double?)settings.Attribute("custom_percentage") ?? 100,
+                    (int?)settings.Attribute("target") ?? 0);
+            }
+            else
+            {
+                monitor = new MonitorData(number++, display);
             }
 
-            var number = 1;
-            foreach (var display in Display.GetDisplays())
-            {
-                var id = display.DisplayDevice.DisplayId;
-                var settings = config?.FirstOrDefault(x => (uint)x.Attribute("id") == id);
-                MonitorData monitor;
-                if (settings != null)
-                {
-                    monitor = new MonitorData(number++, display,
-                        (bool)settings.Attribute("use_icc"),
-                        (string)settings.Attribute("icc_path"),
-                        (bool)settings.Attribute("calibrate_gamma"),
-                        (int)settings.Attribute("selected_gamma"),
-                        (double)settings.Attribute("custom_gamma"),
-                        (double?)settings.Attribute("custom_percentage") ?? 100,
-                        (int?)settings.Attribute("target") ?? 0);
-                }
-                else
-                {
-                    monitor = new MonitorData(number++, display);
-                }
-
-                Monitors.Add(monitor);
-            }
+            Monitors.Add(monitor);
         }
+    }
 
-        public void SaveConfig()
-        {
-            var xElem = new XElement("monitors",
-                Monitors.Select(x =>
-                    new XElement("monitor", new XAttribute("id", x.ID),
-                        new XAttribute("use_icc", x.UseIcc),
-                        new XAttribute("icc_path", x.ProfilePath),
-                        new XAttribute("calibrate_gamma", x.CalibrateGamma),
-                        new XAttribute("selected_gamma", x.SelectedGamma),
-                        new XAttribute("custom_gamma", x.CustomGamma),
-                        new XAttribute("custom_percentage", x.CustomPercentage),
-                        new XAttribute("target", x.Target))));
-            xElem.Save(_configPath);
-        }
+    public void SaveConfig()
+    {
+        var xElem = new XElement("monitors",
+            Monitors.Select(x =>
+                new XElement("monitor", new XAttribute("id", x.ID),
+                    new XAttribute("use_icc", x.UseIcc),
+                    new XAttribute("icc_path", x.ProfilePath),
+                    new XAttribute("calibrate_gamma", x.CalibrateGamma),
+                    new XAttribute("selected_gamma", x.SelectedGamma),
+                    new XAttribute("custom_gamma", x.CustomGamma),
+                    new XAttribute("custom_percentage", x.CustomPercentage),
+                    new XAttribute("target", x.Target))));
+        xElem.Save(_configPath);
     }
 }
