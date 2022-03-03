@@ -1,6 +1,7 @@
 ﻿using EDIDParser;
 using EDIDParser.Descriptors;
 using EDIDParser.Enums;
+using novideo_srgb.core.Configuration;
 using NvAPIWrapper.Display;
 using NvAPIWrapper.GPU;
 using System.ComponentModel;
@@ -10,12 +11,17 @@ namespace novideo_srgb.core.Models
 {
     public class MonitorData : INotifyPropertyChanged
     {
+        public int Number { get; }
+        public string Name { get; }
+        public EDID Edid { get; }
+        public uint ID { get; }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private readonly GPUOutput _output;
         private bool _clamped;
 
-        public MonitorData(int number, Display display, uint id)
+        public MonitorData(int number, Display display)
         {
             Number = number;
             _output = display.Output;
@@ -25,7 +31,7 @@ namespace novideo_srgb.core.Models
             Name = Edid.Descriptors.OfType<StringDescriptor>()
                 .FirstOrDefault(x => x.Type == StringDescriptorType.MonitorName)?.Value ?? "<no name>";
 
-            ID = id;
+            ID = display.DisplayDevice.DisplayId;
 
             var coords = Edid.DisplayParameters.ChromaticityCoordinates;
             EdidColorSpace = new Colorimetry.ColorSpace
@@ -43,8 +49,19 @@ namespace novideo_srgb.core.Models
             CustomPercentage = 100;
         }
 
-        public MonitorData(int number, Display display, uint id, bool useIcc, string profilePath, bool calibrateGamma,
-            int selectedGamma, double customGamma, double customPercentage, int target) : this(number, display, id)
+        public MonitorData(int number, Display display, MonitorOptions options) : this(number, display)
+        {
+            UseIcc = options.UseIcc;
+            ProfilePath = options.IccPath;
+            CalibrateGamma = options.CalibrateGamma;
+            SelectedGamma = options.SelectedGamma;
+            CustomGamma = options.CustomGamma;
+            CustomPercentage = options.CustomPercentage;
+            Target = options.Target;
+        }
+
+        public MonitorData(int number, Display display, bool useIcc, string profilePath, bool calibrateGamma,
+            int selectedGamma, double customGamma, double customPercentage, int target) : this(number, display)
         {
             UseIcc = useIcc;
             ProfilePath = profilePath;
@@ -54,11 +71,6 @@ namespace novideo_srgb.core.Models
             CustomPercentage = customPercentage;
             Target = target;
         }
-
-        public int Number { get; }
-        public string Name { get; }
-        public EDID Edid { get; }
-        public uint ID { get; }
 
         private void UpdateClamp(bool doClamp)
         {
@@ -85,7 +97,7 @@ namespace novideo_srgb.core.Models
                     });
                     var black = (profile.matrix * trcBlack)[1];
                     
-                    ToneCurve gamma;
+                    IToneCurve gamma;
                     switch (SelectedGamma)
                     {
                         case 0:

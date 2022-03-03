@@ -3,8 +3,8 @@
     public class ICCMatrixProfile
     {
         public Matrix matrix = Matrix.Zero3x3();
-        public ToneCurve[] trcs = new ToneCurve[3];
-        public ToneCurve[] vcgt;
+        public IToneCurve[] trcs = new IToneCurve[3];
+        public IToneCurve[] vcgt;
 
         private ICCMatrixProfile()
         {
@@ -98,7 +98,7 @@
                         var inputEntries = reader.ReadUInt16();
                         var outputEntries = reader.ReadUInt16();
 
-                        var input = new ToneCurve[3];
+                        var input = new IToneCurve[3];
                         for (var j = 0; j < 3; j++)
                         {
                             var table = new ushort[inputEntries];
@@ -197,7 +197,7 @@
 
                         var numEntries = reader.ReadUInt32();
 
-                        ToneCurve curve;
+                        IToneCurve curve;
                         if (numEntries == 1)
                         {
                             var gamma = reader.ReadU8Fixed8();
@@ -243,7 +243,7 @@
 
                         if (numChannels != 3) throw new ICCProfileException("Only VCGT with 3 channels is supported");
 
-                        result.vcgt = new ToneCurve[3];
+                        result.vcgt = new IToneCurve[3];
                         for (var j = 0; j < 3; j++)
                         {
                             var values = new ushort[numEntries];

@@ -1,6 +1,6 @@
 ﻿namespace novideo_srgb.core.Models
 {
-    public class GammaToneCurve : ToneCurve
+    public class GammaToneCurve : IToneCurve
     {
         private readonly double _gamma;
         private double _a = 1;

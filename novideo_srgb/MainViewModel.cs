@@ -39,7 +39,7 @@ namespace novideo_srgb
                 MonitorData monitor;
                 if (settings != null)
                 {
-                    monitor = new MonitorData(number++, display, display.DisplayDevice.DisplayId,
+                    monitor = new MonitorData(number++, display,
                         (bool)settings.Attribute("use_icc"),
                         (string)settings.Attribute("icc_path"),
                         (bool)settings.Attribute("calibrate_gamma"),
@@ -50,7 +50,7 @@ namespace novideo_srgb
                 }
                 else
                 {
-                    monitor = new MonitorData(number++, display, display.DisplayDevice.DisplayId);
+                    monitor = new MonitorData(number++, display);
                 }
 
                 Monitors.Add(monitor);

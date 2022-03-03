@@ -1,6 +1,6 @@
 ﻿namespace novideo_srgb.core.Models
 {
-    public class LutToneCurve : ToneCurve
+    public class LutToneCurve : IToneCurve
     {
         private ushort[] _values;
         private ushort _divisor;

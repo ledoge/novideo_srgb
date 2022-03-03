@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace novideo_srgb.core.Models
+﻿namespace novideo_srgb.core.Models
 {
-    public class SrgbEOTF : ToneCurve
+    public class SrgbEOTF : IToneCurve
     {
         private double _black;
 

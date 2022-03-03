@@ -5,10 +5,10 @@
         private ushort[,,,] _lut;
         private int _lutSize;
 
-        private ToneCurve[] inputCurves;
-        private ToneCurve[] outputCurves;
+        private IToneCurve[] inputCurves;
+        private IToneCurve[] outputCurves;
 
-        public Lut16(ToneCurve[] input, ushort[,,,] lut, ToneCurve[] output)
+        public Lut16(IToneCurve[] input, ushort[,,,] lut, IToneCurve[] output)
         {
             _lut = lut;
             _lutSize = _lut.GetLength(0);

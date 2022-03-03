@@ -1,6 +1,6 @@
 ﻿namespace novideo_srgb.core.Models
 {
-    public class DoubleToneCurve : ToneCurve
+    public class DoubleToneCurve : IToneCurve
     {
         private double[] _values;
 

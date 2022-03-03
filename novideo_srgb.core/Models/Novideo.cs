@@ -188,7 +188,7 @@ namespace novideo_srgb.core.Models
 
         public static unsafe void SetColorSpaceConversion(GPUOutput output, ICCMatrixProfile profile,
             Colorimetry.ColorSpace target,
-            ToneCurve curve = null)
+            IToneCurve curve = null)
         {
             var matrix = profile.matrix.Inverse() * Colorimetry.RGBToPCSXYZ(target);
 
