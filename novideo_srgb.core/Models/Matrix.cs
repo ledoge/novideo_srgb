@@ -4,9 +4,7 @@ public class Matrix
 {
     private double[,] _values;
 
-    private Matrix()
-    {
-    }
+    private Matrix() => _values = new double[3, 3];
 
     public double this[int x, int y]
     {
@@ -53,20 +51,9 @@ public class Matrix
         return result;
     }
 
-    public static Matrix Zero3x3()
-    {
-        return FromValues(new double[3, 3]);
-    }
-
-    public static Matrix Zero3x1()
-    {
-        return FromValues(new double[3, 1]);
-    }
-
-    public static Matrix One3x1()
-    {
-        return FromValues(new double[,] { { 1 }, { 1 }, { 1 } });
-    }
+    public static Matrix Zero3x3() => FromValues(new double[3, 3]);
+    public static Matrix Zero3x1() => FromValues(new double[3, 1]);
+    public static Matrix One3x1() => FromValues(new double[,] { { 1 }, { 1 }, { 1 } });
 
     public static Matrix FromDiagonal(double[] array)
     {
@@ -75,10 +62,8 @@ public class Matrix
             throw new ArgumentException("Array must have length 3");
         }
 
-        var result = new Matrix
-        {
-            _values = new double[3, 3]
-        };
+        var result = new Matrix();
+
         for (var i = 0; i < 3; i++)
         {
             result._values[i, i] = array[i];
@@ -135,20 +120,9 @@ public class Matrix
         return result;
     }
 
-    public static Matrix operator *(Matrix a, double b)
-    {
-        return b * a;
-    }
-
-    public static Matrix operator /(double a, Matrix b)
-    {
-        return 1 / a * b;
-    }
-
-    public static Matrix operator /(Matrix a, double b)
-    {
-        return a * (1 / b);
-    }
+    public static Matrix operator *(Matrix a, double b) => b * a;
+    public static Matrix operator /(double a, Matrix b) => 1 / a* b;
+    public static Matrix operator /(Matrix a, double b) => a * (1 / b);
 
     public static Matrix operator +(Matrix a, Matrix b)
     {

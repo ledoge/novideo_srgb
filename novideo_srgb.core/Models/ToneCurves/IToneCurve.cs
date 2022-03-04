@@ -1,4 +1,4 @@
-﻿namespace novideo_srgb.core.Models;
+﻿namespace novideo_srgb.core.Models.ToneCurves;
 
 public interface IToneCurve
 {

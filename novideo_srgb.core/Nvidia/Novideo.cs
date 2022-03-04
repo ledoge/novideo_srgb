@@ -1,5 +1,8 @@
 ﻿using EDIDParser;
 using Microsoft.Win32;
+using novideo_srgb.core.ICCProfile;
+using novideo_srgb.core.Models;
+using novideo_srgb.core.Models.ToneCurves;
 using NvAPIWrapper.Display;
 using NvAPIWrapper.GPU;
 using System.Runtime.InteropServices;
@@ -10,9 +13,9 @@ everything figured out from publicly available information and/or
 throwing stuff at NVAPI and observing the results or errors
 */
 
-namespace novideo_srgb.core.Models;
+namespace novideo_srgb.core.Nvidia;
 
-public static class Novideo
+internal static partial class Novideo
 {
     /*
     observed pipeline: content degamma -> content to srgb -> srgb to monitor -> matrix2 -> matrix1 -> monitor gamma
@@ -20,49 +23,7 @@ public static class Novideo
     3x4 matrices cannot be multiplied with each other though, so only the 3x3 parts are combined "properly"
     and the offsets are simply added together
     */
-    [StructLayout(LayoutKind.Sequential)]
-    private struct Csc
-    {
-        public uint version; // 0x1007C for V1, 0x200A0 for V2
-
-        public uint
-            contentColorSpace; // built-in degamut/degamma transforms, 1 <= x <= 12, default 2 (probably srgb)
-
-        public uint monitorColorSpace; // built-in gamut/gamma transforms, 0 <= x <= 12, default 0 (= csc disabled)
-        public uint unknown1; // no idea, set to 0 by both get and set functions -> some type of error code?
-        public uint unknown2; // also no idea, not modified by either function -> unused?
-        public uint useMatrix1; // 1 to enable
-        public unsafe fixed float matrix1[3 * 4]; // r/g/b gain and offset
-        public uint useMatrix2;
-
-        public unsafe fixed float matrix2[3 * 4];
-
-        // v2 stuff
-        public unsafe float* degamma; // pointer to degamma part of buffer (= first element)
-        public unsafe float* regamma; // pointer to regamma part of buffer (= index 0x3000)
-
-        public unsafe float*
-            buffer; // float array of size 0x6000, contains interleaved rgb degamma followed by regamma
-
-        public int bufferSize; // 0x6000
-    }
-
-    public struct DitherControl
-    {
-        public int state;
-        public int bits;
-        public int mode;
-        public uint bitsCaps;
-        public uint modeCaps;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct Dither
-    {
-        public uint version;
-        public DitherControl ditherControl;
-    }
-
+    
     private const uint _NvAPI_GPU_GetColorSpaceConversion = 0x8159E87A;
     private const uint _NvAPI_GPU_SetColorSpaceConversion = 0x0FCABD23A;
     private const uint _NvAPI_GPU_SetDitherControl = 0x0DF0DFCDD;
@@ -93,20 +54,12 @@ public static class Novideo
     private static NvAPI_GPU_GetDitherControl_t NvAPI_GPU_GetDitherControl;
     private static NvAPI_GPU_SetDitherControl_t NvAPI_GPU_SetDitherControl;
 
-    public struct ColorSpaceConversion
-    {
-        public uint contentColorSpace;
-        public uint monitorColorSpace;
-        public float[,] matrix1;
-        public float[,] matrix2;
-    }
-
-    public static ColorSpaceConversion GetColorSpaceConversion(GPUOutput output)
+    private static ColorSpaceConversion GetColorSpaceConversion(GPUOutput output)
     {
         var displayId = output.PhysicalGPU.GetDisplayDeviceByOutput(output).DisplayId;
-
         var csc = new Csc { version = 0x1007C };
         var status = NvAPI_GPU_GetColorSpaceConversion(displayId, ref csc);
+
         if (status != 0)
         {
             throw new Exception("NvAPI_GPU_GetColorSpaceConversion failed with error code " + status);
@@ -142,7 +95,7 @@ public static class Novideo
         return result;
     }
 
-    public static void SetColorSpaceConversion(GPUOutput output, ColorSpaceConversion conversion)
+    private static void SetColorSpaceConversion(GPUOutput output, ColorSpaceConversion conversion)
     {
         var displayId = output.PhysicalGPU.GetDisplayDeviceByOutput(output).DisplayId;
 
@@ -181,14 +134,9 @@ public static class Novideo
         }
     }
 
-    public static void SetColorSpaceConversion(GPUOutput output, Matrix matrix)
-    {
-        SetColorSpaceConversion(output, MatrixToColorSpaceConversion(matrix));
-    }
+    public static void SetColorSpaceConversion(GPUOutput output, Matrix matrix) => SetColorSpaceConversion(output, MatrixToColorSpaceConversion(matrix));
 
-    public static unsafe void SetColorSpaceConversion(GPUOutput output, ICCMatrixProfile profile,
-        Colorimetry.ColorSpace target,
-        IToneCurve curve = null)
+    public static unsafe void SetColorSpaceConversion(GPUOutput output, ICCMatrixProfile profile, ColorSpace target, IToneCurve? curve = null)
     {
         var matrix = profile.matrix.Inverse() * Colorimetry.RGBToPCSXYZ(target);
 
@@ -254,25 +202,19 @@ public static class Novideo
         }
     }
 
-    public static bool IsColorSpaceConversionActive(GPUOutput output)
-    {
-        return GetColorSpaceConversion(output).monitorColorSpace != 0;
-    }
-
-    public static void DisableColorSpaceConversion(GPUOutput output)
-    {
-        SetColorSpaceConversion(output, new ColorSpaceConversion { contentColorSpace = 2 });
-    }
+    public static bool IsColorSpaceConversionActive(GPUOutput output) => GetColorSpaceConversion(output).monitorColorSpace != 0;
+    public static void DisableColorSpaceConversion(GPUOutput output) => SetColorSpaceConversion(output, new ColorSpaceConversion { contentColorSpace = 2 });
 
     public static EDID GetEDID(Display display)
     {
         try
         {
             var displays = WindowsDisplayAPI.Display.GetDisplays();
-            var path = displays.First(x => x.DisplayName == display.Name).DevicePath;
-            var registryPath = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Enum\\DISPLAY\\";
-            registryPath += string.Join("\\", path.Split('#').Skip(1).Take(2));
-            return new EDID((byte[])Registry.GetValue(registryPath + "\\Device Parameters", "EDID", null));
+            var devicePath = displays.First(x => x.DisplayName == display.Name).DevicePath;
+            var registryPath = $"HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Enum\\DISPLAY\\{string.Join("\\", devicePath.Split('#').Skip(1).Take(2))}";
+            var registryKey = $"{registryPath}\\Device Parameters";
+            var registryItem = (byte[]?)Registry.GetValue(registryKey, "EDID", null);
+            return new EDID(registryItem);
         }
         catch
         {

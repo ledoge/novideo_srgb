@@ -5,7 +5,12 @@ VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "novideo_srgb", "novideo_srgb\novideo_srgb.csproj", "{A6A97834-7BE1-474A-B92F-A512DB1D5186}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "novideo_srgb.core", "novideo_srgb.core\novideo_srgb.core.csproj", "{420A909D-0C36-4B16-8006-4676850735F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "novideo_srgb.core", "novideo_srgb.core\novideo_srgb.core.csproj", "{420A909D-0C36-4B16-8006-4676850735F2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8E66D039-54A4-49CB-BCC4-194AAFA6472B}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

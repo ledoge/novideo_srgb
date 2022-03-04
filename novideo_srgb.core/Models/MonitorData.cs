@@ -2,6 +2,9 @@
 using EDIDParser.Descriptors;
 using EDIDParser.Enums;
 using novideo_srgb.core.Configuration;
+using novideo_srgb.core.ICCProfile;
+using novideo_srgb.core.Models.ToneCurves;
+using novideo_srgb.core.Nvidia;
 using NvAPIWrapper.Display;
 using NvAPIWrapper.GPU;
 using System.ComponentModel;
@@ -16,7 +19,7 @@ public class MonitorData : INotifyPropertyChanged
     public EDID Edid { get; }
     public uint ID { get; }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     private readonly GPUOutput _output;
     private bool _clamped;
@@ -34,12 +37,12 @@ public class MonitorData : INotifyPropertyChanged
         ID = display.DisplayDevice.DisplayId;
 
         var coords = Edid.DisplayParameters.ChromaticityCoordinates;
-        EdidColorSpace = new Colorimetry.ColorSpace
+        EdidColorSpace = new ColorSpace
         {
-            Red = new Colorimetry.Point { X = Math.Round(coords.RedX, 3), Y = Math.Round(coords.RedY, 3) },
-            Green = new Colorimetry.Point { X = Math.Round(coords.GreenX, 3), Y = Math.Round(coords.GreenY, 3) },
-            Blue = new Colorimetry.Point { X = Math.Round(coords.BlueX, 3), Y = Math.Round(coords.BlueY, 3) },
-            White = Colorimetry.D65
+            Red = new Point { X = Math.Round(coords.RedX, 3), Y = Math.Round(coords.RedY, 3) },
+            Green = new Point { X = Math.Round(coords.GreenX, 3), Y = Math.Round(coords.GreenY, 3) },
+            Blue = new Point { X = Math.Round(coords.BlueX, 3), Y = Math.Round(coords.BlueY, 3) },
+            White = ColorSpaces.D65
         };
 
         _clamped = Novideo.IsColorSpaceConversionActive(_output);
@@ -178,16 +181,13 @@ public class MonitorData : INotifyPropertyChanged
 
     public int Target { set; get; }
 
-    public Colorimetry.ColorSpace EdidColorSpace { get; }
+    public ColorSpace EdidColorSpace { get; }
 
-    private Colorimetry.ColorSpace TargetColorSpace => Colorimetry.ColorSpaces[Target];
+    private ColorSpace TargetColorSpace => ColorSpaces.AllColorSpaces[Target];
 
-    public Novideo.DitherControl DitherControl => Novideo.GetDitherControl(_output);
+    public DitherControl DitherControl => Novideo.GetDitherControl(_output);
 
     public void ApplyDither(int state, int bits, int mode) => Novideo.SetDitherControl(_output, state, bits, mode);
 
-    private void OnPropertyChanged([CallerMemberName] string name = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-    }
+    private void OnPropertyChanged([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }

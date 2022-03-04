@@ -1,4 +1,6 @@
-﻿namespace novideo_srgb.core.Models;
+﻿using novideo_srgb.core.Models.ToneCurves;
+
+namespace novideo_srgb.core.Models;
 
 public class SrgbEOTF : IToneCurve
 {

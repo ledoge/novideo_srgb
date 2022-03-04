@@ -1,13 +1,28 @@
-﻿namespace novideo_srgb.core.Models;
+﻿using novideo_srgb.core.Models;
+using novideo_srgb.core.Models.ToneCurves;
 
-public class ICCMatrixProfile
+namespace novideo_srgb.core.ICCProfile;
+
+internal partial class ICCMatrixProfile
 {
     public Matrix matrix = Matrix.Zero3x3();
     public IToneCurve[] trcs = new IToneCurve[3];
-    public IToneCurve[] vcgt;
+    public IToneCurve[]? vcgt;
 
-    private ICCMatrixProfile()
+    private ICCMatrixProfile() { }
+
+    private static void CheckValue(ICCBinaryReader reader, Stream stream, int offset, string expectedValue, string errorMessage)
     {
+        stream.Seek(offset, SeekOrigin.Begin);
+        var actual = new string(reader.ReadChars(expectedValue.Length));
+        _ = actual != expectedValue ? throw new ICCProfileException(errorMessage) : actual;
+    }
+
+    private static void ValidateProfileStream(ICCBinaryReader reader, Stream stream)
+    {
+        CheckValue(reader, stream, 0x24, "acsp", "Not an ICC profile");
+        CheckValue(reader, stream, 0xC, "mntr", "Not a display device profile");
+        CheckValue(reader, stream, 0x10, "RGB XYZ ", "Not an RGB profile with XYZ PCS");
     }
 
     public static ICCMatrixProfile FromFile(string path)
@@ -18,40 +33,14 @@ public class ICCMatrixProfile
         {
             var stream = reader.BaseStream;
 
-            {
-                stream.Seek(0x24, SeekOrigin.Begin);
-                var magic = new string(reader.ReadChars(4));
-                if (magic != "acsp")
-                {
-                    throw new ICCProfileException("Not an ICC profile");
-                }
-            }
-
-            {
-                stream.Seek(0xC, SeekOrigin.Begin);
-                var type = new string(reader.ReadChars(4));
-                if (type != "mntr")
-                {
-                    throw new ICCProfileException("Not a display device profile");
-                }
-            }
-
-            {
-                stream.Seek(0x10, SeekOrigin.Begin);
-                var spaces = new string(reader.ReadChars(8));
-                if (spaces != "RGB XYZ ")
-                {
-                    throw new ICCProfileException("Not an RGB profile with XYZ PCS");
-                }
-            }
+            ValidateProfileStream(reader, stream);
 
             stream.Seek(0x80, SeekOrigin.Begin);
 
             var tagCount = reader.ReadUInt32();
-
             var seenTags = 0;
-
             var useCLUT = false;
+
             for (uint i = 0; i < tagCount; i++)
             {
                 stream.Seek(0x80 + 4 + 12 * i, SeekOrigin.Begin);
@@ -157,7 +146,7 @@ public class ICCMatrixProfile
                         }
                     }
 
-                    var M = Mprime * Matrix.FromDiagonal(Mprime.Inverse() * Colorimetry.D50);
+                    var M = Mprime * Matrix.FromDiagonal(Mprime.Inverse() * ColorSpaces.D50);
                     var Minv = M.Inverse();
                     result.matrix = M;
 

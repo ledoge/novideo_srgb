@@ -2,92 +2,13 @@
 
 namespace novideo_srgb.core.Models;
 
-public static class Colorimetry
+internal static partial class Colorimetry
 {
-    public struct Point
-    {
-        public bool Equals(Point other)
-        {
-            return X.Equals(other.X) && Y.Equals(other.Y);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is Point other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (X.GetHashCode() * 397) ^ Y.GetHashCode();
-            }
-        }
-
-        public double X;
-        public double Y;
-    }
-
-    public struct ColorSpace
-    {
-        public bool Equals(ColorSpace other)
-        {
-            return Red.Equals(other.Red) && Green.Equals(other.Green) && Blue.Equals(other.Blue) &&
-                    White.Equals(other.White);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is ColorSpace other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = Red.GetHashCode();
-                hashCode = (hashCode * 397) ^ Green.GetHashCode();
-                hashCode = (hashCode * 397) ^ Blue.GetHashCode();
-                hashCode = (hashCode * 397) ^ White.GetHashCode();
-                return hashCode;
-            }
-        }
-
-        public Point Red;
-        public Point Green;
-        public Point Blue;
-        public Point White;
-    }
-
-    public static Point D65 = new Point { X = 0.3127, Y = 0.3290 };
-
-    public static ColorSpace sRGB = new ColorSpace
-    {
-        Red = new Point { X = 0.64, Y = 0.33 },
-        Green = new Point { X = 0.3, Y = 0.6 },
-        Blue = new Point { X = 0.15, Y = 0.06 },
-        White = D65
-    };
-
-    public static ColorSpace DisplayP3 = new ColorSpace
-    {
-        Red = new Point { X = 0.68, Y = 0.32 },
-        Green = new Point { X = 0.265, Y = 0.69 },
-        Blue = new Point { X = 0.15, Y = 0.06 },
-        White = D65
-    };
-
-    public static ColorSpace AdobeRGB = new ColorSpace
-    {
-        Red = new Point { X = 0.64, Y = 0.33 },
-        Green = new Point { X = 0.21, Y = 0.71 },
-        Blue = new Point { X = 0.15, Y = 0.06 },
-        White = D65
-    };
-
-    public static ColorSpace[] ColorSpaces => new[] { sRGB, DisplayP3, AdobeRGB };
-
-    public static Matrix D50 = Matrix.FromValues(new[,] { { 0.9642 }, { 1 }, { 0.8249 } });
+    public static Matrix XYZToRGB(ColorSpace colorSpace) => RGBToXYZ(colorSpace).Inverse();
+    public static Matrix RGBToRGB(ColorSpace from, ColorSpace to) => XYZToRGB(to) * RGBToXYZ(from);
+    public static Matrix RGBToPCSXYZ(ColorSpace colorspace) => RGBToAdaptedXYZ(colorspace, ColorSpaces.D50);
+    public static Matrix PCSXYZToRGB(ColorSpace colorspace) => RGBToPCSXYZ(colorspace).Inverse();
+    public static Matrix XYZScaleToD50(Matrix matrix) => XYZScale(matrix, ColorSpaces.D50);
 
     public static Matrix RGBToXYZ(ColorSpace colorSpace)
     {
@@ -106,17 +27,6 @@ public static class Colorimetry
         });
 
         return Mprime * Matrix.FromDiagonal(Mprime.Inverse() * whiteXYZ);
-    }
-
-    public static Matrix XYZToRGB(ColorSpace colorSpace)
-    {
-        return RGBToXYZ(colorSpace).Inverse();
-    }
-
-    public static Matrix RGBToRGB(ColorSpace from, ColorSpace to)
-    {
-        var result = XYZToRGB(to) * RGBToXYZ(from);
-        return result;
     }
 
     public static Matrix RGBToAdaptedXYZ(ColorSpace colorspace, Matrix whiteXYZ)
@@ -139,16 +49,6 @@ public static class Colorimetry
         return m * xyz;
     }
 
-    public static Matrix RGBToPCSXYZ(ColorSpace colorspace)
-    {
-        return RGBToAdaptedXYZ(colorspace, D50);
-    }
-
-    public static Matrix PCSXYZToRGB(ColorSpace colorspace)
-    {
-        return RGBToPCSXYZ(colorspace).Inverse();
-    }
-
     public static Matrix XYZScale(Matrix matrix, Matrix target)
     {
         var result = Matrix.Zero3x3();
@@ -164,8 +64,4 @@ public static class Colorimetry
         return result;
     }
 
-    public static Matrix XYZScaleToD50(Matrix matrix)
-    {
-        return XYZScale(matrix, D50);
-    }
 }

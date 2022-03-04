@@ -31,7 +31,7 @@ public class AdvancedViewModel : INotifyPropertyChanged
         throw new NotSupportedException();
     }
 
-    public AdvancedViewModel(MonitorData monitor, Novideo.DitherControl dither)
+    public AdvancedViewModel(MonitorData monitor, DitherControl dither)
     {
         _monitor = monitor;
 
@@ -157,7 +157,7 @@ public class AdvancedViewModel : INotifyPropertyChanged
         get => _target;
     }
 
-    public Visibility EdidWarning => UseEdid && Colorimetry.ColorSpaces[_target].Equals(_monitor.EdidColorSpace)
+    public Visibility EdidWarning => UseEdid && ColorSpaces.AllColorSpaces[_target].Equals(_monitor.EdidColorSpace)
         ? Visibility.Visible
         : Visibility.Collapsed;
 
