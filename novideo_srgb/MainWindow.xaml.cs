@@ -4,7 +4,11 @@ using novideo_srgb.core.Models;
 using System;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Interop;
+using Application = System.Windows.Application;
 
 namespace novideo_srgb;
 
@@ -24,10 +28,11 @@ public partial class MainWindow
 
         _viewModel = (MainViewModel)DataContext;
 
-        initializeTrayIcon();
+        InitializeTrayIcon();
+        //ReapplyMonitorSettings();
     }
 
-    private void initializeTrayIcon()
+    private void InitializeTrayIcon()
     {
         if(_options.MinimizeToTray)
         {
@@ -85,6 +90,14 @@ public partial class MainWindow
         }
     }
 
+    private void ReapplyMonitorSettings()
+    {
+        foreach (var monitor in _viewModel.Monitors)
+        {
+            monitor.ReapplyClamp();
+        }
+    }
+
     //I don't like this but I needed to move some GUI logic out of MonitorData
     private static void TryWithMessage(Action doStuff)
     {
@@ -106,5 +119,53 @@ public partial class MainWindow
         }
 
         base.OnStateChanged(e);
+    }
+
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        RegisterMonitorPowerOnNotification();
+    }
+
+    private void RegisterMonitorPowerOnNotification()
+    {
+        var handle = new WindowInteropHelper(this).Handle;
+        _ = RegisterPowerSettingNotification(handle, ref GUID_CONSOLE_DISPLAY_STATE, DEVICE_NOTIFY_WINDOW_HANDLE);
+        HwndSource.FromHwnd(handle)?.AddHook(HandleMessages);
+    }
+
+    private IntPtr HandleMessages(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (msg != WM_POWERBROADCAST)
+        {
+            return IntPtr.Zero;
+        }
+
+        _ = ExecuteWithDelay(ReapplyMonitorSettings, 150);
+        return IntPtr.Zero;
+    }
+
+    private async Task ExecuteWithDelay(Action action, int seconds)
+    {
+        await Task.Delay(seconds);
+        action();
+    }
+
+    private static readonly int DEVICE_NOTIFY_WINDOW_HANDLE = 0x00000000;
+    private static readonly int WM_POWERBROADCAST = 0x0218;
+    private static Guid GUID_CONSOLE_DISPLAY_STATE = new("6FE69556-704A-47A0-8F24-C28D936FDA47");
+
+    [DllImport(@"User32", SetLastError = true,
+                          EntryPoint = "RegisterPowerSettingNotification",
+                          CallingConvention = CallingConvention.StdCall)]
+    private static extern IntPtr RegisterPowerSettingNotification(
+        IntPtr hRecipient,
+        ref Guid PowerSettingGuid,
+        int Flags);
+
+    protected override void OnClosed(EventArgs e)
+    {
+        _trayIcon.Dispose();
+        base.OnClosed(e);
     }
 }
