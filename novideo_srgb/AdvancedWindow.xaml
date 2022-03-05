@@ -132,7 +132,8 @@
                                 </TextBox.Text>
                             </TextBox>
                         </StackPanel>
-                        <StackPanel Visibility="{Binding UseCustomGamma}" Orientation="Horizontal">
+                        <StackPanel Visibility="{Binding UseCustomGamma}" IsEnabled="{Binding CalibrateGamma}"
+                                    Orientation="Horizontal">
                             <TextBlock VerticalAlignment="Center">with</TextBlock>
                             <TextBox
                                 VerticalAlignment="Center" VerticalContentAlignment="Center" TextAlignment="Right"
