@@ -14,6 +14,15 @@ namespace novideo_srgb
             _viewModel = (MainViewModel)DataContext;
         }
 
+        private void AboutButton_Click(object sender, RoutedEventArgs o)
+        {
+            var window = new AboutWindow
+            {
+                Owner = this
+            };
+            window.ShowDialog();
+        }
+
         private void MonitorRefreshButton_Click(object sender, RoutedEventArgs e)
         {
             _viewModel.UpdateMonitors();
