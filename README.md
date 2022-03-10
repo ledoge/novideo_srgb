@@ -14,4 +14,5 @@ ICC profiles are also supported and can be used in two different ways. By defaul
 
 * For the gamma options to work properly, the profile must report the display's black point accurately. DisplayCAL's default settings, e.g. with the sRGB preset, work fine.
 * Since the color space conversion is done on the GPU side, the ICC profile must not be selected/loaded in Windows or any other application. If you want, you can do another profiling run on top of the active calibration and then use this profile in applications that support color management to achieve even better color accuracy.
+* To achieve optimal results, consider creating a custom testchart in DisplayCAL with a high number of neutral (grayscale) patches. The number of colored patches should not matter that much. Additionally, configuring DisplayCAL to generate a "Curves + matrix" profile with "Black point compensation" disabled may also result in a more accurate calibration than with an XYZ LUT profile.
 * Only the VCGT (if present), TRC and PCS matrix parts of an ICC profile are used. If present, the A2B1 data is used to calculate (hopefully) higher quality TRC and PCS matrix values.
