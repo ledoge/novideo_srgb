@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:novideo_srgb"
         mc:Ignorable="d"
         Title="About"
         SizeToContent="WidthAndHeight"
@@ -11,7 +10,7 @@
         WindowStartupLocation="CenterOwner">
     <StackPanel Margin="6">
         <TextBlock FontSize="15" HorizontalAlignment="Center" TextAlignment="Center">
-            novideo_srgb v2.6 by ledoge
+            novideo_srgb v2.7 by ledoge
         </TextBlock>
         <TextBlock HorizontalAlignment="Center" TextAlignment="Center">
             Licensed under GPLv3 <LineBreak /> <LineBreak />
