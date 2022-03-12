@@ -214,11 +214,32 @@ namespace novideo_srgb
                     bufferSize = 0x6000,
                 };
 
+                double nextIndex = -1;
                 for (var i = 1; i < 1024; i++)
                 {
+                    var curr = i * 255 % 1023;
+                    var next = (i + 1) * 255 % 1023;
+
+                    var index = i / 1023d;
+                    if (nextIndex != -1)
+                    {
+                        index = nextIndex;
+                        nextIndex = -1;
+                    }
+                    else if (next < curr)
+                    {
+                        nextIndex = (i + 1) * 255 / 1023 / 255d;
+                        if (next != 0)
+                        {
+                            index = nextIndex;
+                        }
+                    }
+
+                    var sample = (float)curve.SampleAt(index);
+
                     for (var j = 0; j < 3; j++)
                     {
-                        gamma[0, i, j] = (float)curve.SampleAt(i / 1023d);
+                        gamma[0, i, j] = sample;
                     }
                 }
 
