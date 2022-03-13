@@ -149,6 +149,9 @@
                             </TextBox>
                             <TextBlock VerticalAlignment="Center" Margin="2,0,0,0">% black output offset</TextBlock>
                         </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                            <CheckBox IsChecked="{Binding DisableOptimization}" VerticalAlignment="Center">Disable 8-bit color optimization</CheckBox>
+                        </StackPanel>
                     </StackPanel>
                 </RadioButton>
             </StackPanel>

@@ -45,7 +45,8 @@ namespace novideo_srgb
                         (int)settings.Attribute("selected_gamma"),
                         (double)settings.Attribute("custom_gamma"),
                         (double?)settings.Attribute("custom_percentage") ?? 100,
-                        (int?)settings.Attribute("target") ?? 0);
+                        (int?)settings.Attribute("target") ?? 0,
+                        (bool?)settings.Attribute("disable_optimization") ?? false);
                 }
                 else
                 {
@@ -67,7 +68,8 @@ namespace novideo_srgb
                         new XAttribute("selected_gamma", x.SelectedGamma),
                         new XAttribute("custom_gamma", x.CustomGamma),
                         new XAttribute("custom_percentage", x.CustomPercentage),
-                        new XAttribute("target", x.Target))));
+                        new XAttribute("target", x.Target),
+                        new XAttribute("disable_optimization", x.DisableOptimization))));
             xElem.Save(_configPath);
         }
     }

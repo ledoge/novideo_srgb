@@ -189,7 +189,8 @@ namespace novideo_srgb
 
         public static unsafe void SetColorSpaceConversion(GPUOutput output, ICCMatrixProfile profile,
             Colorimetry.ColorSpace target,
-            ToneCurve curve = null)
+            ToneCurve curve = null,
+            bool disableOptimization = false)
         {
             var matrix = profile.matrix.Inverse() * Colorimetry.RGBToPCSXYZ(target);
 
@@ -217,21 +218,25 @@ namespace novideo_srgb
                 double nextIndex = -1;
                 for (var i = 1; i < 1024; i++)
                 {
-                    var curr = i * 255 % 1023;
-                    var next = (i + 1) * 255 % 1023;
-
                     var index = i / 1023d;
-                    if (nextIndex != -1)
+
+                    if (!disableOptimization)
                     {
-                        index = nextIndex;
-                        nextIndex = -1;
-                    }
-                    else if (next < curr)
-                    {
-                        nextIndex = (i + 1) * 255 / 1023 / 255d;
-                        if (next != 0)
+                        var curr = i * 255 % 1023;
+                        var next = (i + 1) * 255 % 1023;
+
+                        if (nextIndex != -1)
                         {
                             index = nextIndex;
+                            nextIndex = -1;
+                        }
+                        else if (next < curr)
+                        {
+                            nextIndex = (i + 1) * 255 / 1023 / 255d;
+                            if (next != 0)
+                            {
+                                index = nextIndex;
+                            }
                         }
                     }
 
