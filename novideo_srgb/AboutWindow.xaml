@@ -10,7 +10,7 @@
         WindowStartupLocation="CenterOwner">
     <StackPanel Margin="6">
         <TextBlock FontSize="15" HorizontalAlignment="Center" TextAlignment="Center">
-            novideo_srgb v2.7 by ledoge
+            novideo_srgb v2.8 by ledoge
         </TextBlock>
         <TextBlock HorizontalAlignment="Center" TextAlignment="Center">
             Licensed under GPLv3 <LineBreak /> <LineBreak />
