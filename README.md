@@ -4,7 +4,7 @@ Goals of this fork:
 * Upgrade from .NET Framework 4.8 to .NET 6 (completed)
 * Separate domain logic into its own assembly (completed)
 * Adopt modern .NET design practices like dependency injection (in progress)
-* Feature to reapply clamp when waking display from power saving mode (completed, but janky)
+* Feature to reapply clamp when waking display (completed)
 * Feature to listen for changes between SDR and HDR modes in Windows and automatically disable the clamp when in HDR (not started)
 * Background operation ("minimize to tray") (partial)
 * Build a CLI assembly for users looking to automate operation (not started)

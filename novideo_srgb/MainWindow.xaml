@@ -11,8 +11,12 @@
         <local:MainViewModel />
     </Window.DataContext>
     <DockPanel Margin="6">
-        <Button DockPanel.Dock="Bottom" Content="Refresh" Width="75" HorizontalAlignment="Right"
-                Click="MonitorRefreshButton_Click" />
+        <Grid DockPanel.Dock="Bottom">
+            <Button Content="Reapply" Width="75" HorizontalAlignment="Left"
+                    Click="MonitorRefreshButton_Click" ToolTip="Reapply all monitor settings" />
+            <Button Content="Refresh" Width="75" HorizontalAlignment="Right"
+                    Click="MonitorRefreshButton_Click" ToolTip="Refresh monitors" />
+        </Grid>
         <DataGrid ItemsSource="{Binding Monitors}" RowHeaderWidth="0" AutoGenerateColumns="False"
                   DockPanel.Dock="Bottom" Margin="0,0,0,6" CanUserResizeColumns="False" CanUserSortColumns="False"
                   CanUserReorderColumns="False">

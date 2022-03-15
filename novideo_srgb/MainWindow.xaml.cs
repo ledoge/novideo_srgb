@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Options;
 using novideo_srgb.core.Configuration;
 using novideo_srgb.core.Models;
+using novideo_srgb.core.PowerBroadcast;
 using System;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
@@ -17,6 +17,8 @@ public partial class MainWindow
     private readonly MainViewModel _viewModel;
     private System.Windows.Forms.NotifyIcon _trayIcon;
     private AppOptions _options;
+
+    //public string Visibility = visibility.Visible;
 
     public MainWindow(IOptions<AppOptions> options) : this(options.Value) { }
 
@@ -48,9 +50,11 @@ public partial class MainWindow
 
             if (_options.StartHidden)
             {
-                WindowState = WindowState.Minimized;
-                Hide();
-                ShowInTaskbar = false;
+                _ = ExecuteWithDelay(() =>
+                {
+                    Hide();
+                    ShowInTaskbar = false;
+                }, 150);
             }
         }
     }
@@ -62,10 +66,8 @@ public partial class MainWindow
         ShowInTaskbar = true;
     }
 
-    private void MonitorRefreshButton_Click(object sender, RoutedEventArgs e)
-    {
-        _viewModel.UpdateMonitors();
-    }
+    private void ReapplySettingsButton_Click(object sender, RoutedEventArgs e) => ReapplyMonitorSettings();
+    private void MonitorRefreshButton_Click(object sender, RoutedEventArgs e) => _viewModel.UpdateMonitors();
 
     private void AdvancedButton_Click(object sender, RoutedEventArgs e)
     {
@@ -124,44 +126,24 @@ public partial class MainWindow
     protected override void OnSourceInitialized(EventArgs e)
     {
         base.OnSourceInitialized(e);
-        RegisterMonitorPowerOnNotification();
-    }
-
-    private void RegisterMonitorPowerOnNotification()
-    {
         var handle = new WindowInteropHelper(this).Handle;
-        _ = RegisterPowerSettingNotification(handle, ref GUID_CONSOLE_DISPLAY_STATE, DEVICE_NOTIFY_WINDOW_HANDLE);
+        PowerBroadcastNotificationHelpers.RegisterPowerBroadcastNotification(handle, PowerSettingGuids.CONSOLE_DISPLAY_STATE);
         HwndSource.FromHwnd(handle)?.AddHook(HandleMessages);
     }
 
-    private IntPtr HandleMessages(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    private IntPtr HandleMessages(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) => PowerBroadcastNotificationHelpers.HandleBroadcastNotification(msg, lParam, (message) =>
     {
-        if (msg != WM_POWERBROADCAST)
+        if (((char)message.Data) == (char)ConsoleDisplayState.TurnedOn)
         {
-            return IntPtr.Zero;
+            _ = ExecuteWithDelay(ReapplyMonitorSettings, 150);
         }
-
-        _ = ExecuteWithDelay(ReapplyMonitorSettings, 150);
-        return IntPtr.Zero;
-    }
+    });
 
     private async Task ExecuteWithDelay(Action action, int seconds)
     {
         await Task.Delay(seconds);
         action();
     }
-
-    private static readonly int DEVICE_NOTIFY_WINDOW_HANDLE = 0x00000000;
-    private static readonly int WM_POWERBROADCAST = 0x0218;
-    private static Guid GUID_CONSOLE_DISPLAY_STATE = new("6FE69556-704A-47A0-8F24-C28D936FDA47");
-
-    [DllImport(@"User32", SetLastError = true,
-                          EntryPoint = "RegisterPowerSettingNotification",
-                          CallingConvention = CallingConvention.StdCall)]
-    private static extern IntPtr RegisterPowerSettingNotification(
-        IntPtr hRecipient,
-        ref Guid PowerSettingGuid,
-        int Flags);
 
     protected override void OnClosed(EventArgs e)
     {
