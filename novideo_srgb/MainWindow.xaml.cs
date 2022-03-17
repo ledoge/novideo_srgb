@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
+using Microsoft.Win32;
 using novideo_srgb.core.Configuration;
+using novideo_srgb.core.DisplayConfig;
 using novideo_srgb.core.Models;
 using novideo_srgb.core.PowerBroadcast;
 using System;
@@ -17,8 +19,6 @@ public partial class MainWindow
     private readonly MainViewModel _viewModel;
     private System.Windows.Forms.NotifyIcon _trayIcon;
     private AppOptions _options;
-
-    //public string Visibility = visibility.Visible;
 
     public MainWindow(IOptions<AppOptions> options) : this(options.Value) { }
 
@@ -101,11 +101,11 @@ public partial class MainWindow
     }
 
     //I don't like this but I needed to move some GUI logic out of MonitorData
-    private static void TryWithMessage(Action doStuff)
+    private static void TryWithMessage(Action action)
     {
         try
         {
-            doStuff();
+            action();
         }
         catch (Exception ex)
         {
@@ -125,10 +125,30 @@ public partial class MainWindow
 
     protected override void OnSourceInitialized(EventArgs e)
     {
+        SystemEvents.DisplaySettingsChanged += new EventHandler(OnDisplaySettingsChanged);
         base.OnSourceInitialized(e);
         var handle = new WindowInteropHelper(this).Handle;
         PowerBroadcastNotificationHelpers.RegisterPowerBroadcastNotification(handle, PowerSettingGuids.CONSOLE_DISPLAY_STATE);
         HwndSource.FromHwnd(handle)?.AddHook(HandleMessages);
+    }
+
+    private void OnDisplaySettingsChanged(object sender, EventArgs e)
+    {
+        /*
+         * TODO: This needs to work on a per-monitor basis.
+         * GetDisplayHdrStatus loops through all monitors and returns the result only for the last one.
+         * I'm not seeing an obvious way to tie monitor data grabbed from the Nvidia API to that gathered from the Windows API.
+         * And I don't have extra displays to experiment with right now.
+         * Maybe investigate whether the Nvidia API can tell us whether HDR is enabled on a display?
+        */
+        var hdrStatus = DisplayConfigManager.GetDisplayHdrStatus();
+        var clamp = hdrStatus == DisplayHdrStatus.Disabled ? true : false;
+
+        foreach (var monitor in _viewModel.Monitors)
+        {
+            monitor.Clamped = clamp;
+            monitor.ReapplyClamp();
+        }
     }
 
     private IntPtr HandleMessages(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) => PowerBroadcastNotificationHelpers.HandleBroadcastNotification(msg, lParam, (message) =>
