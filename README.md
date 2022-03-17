@@ -5,7 +5,7 @@ Goals of this fork:
 * Separate domain logic into its own assembly (completed)
 * Adopt modern .NET design practices like dependency injection (in progress)
 * Feature to reapply clamp when waking display (completed)
-* Feature to listen for changes between SDR and HDR modes in Windows and automatically disable the clamp when in HDR (not started)
+* Feature to listen for changes between SDR and HDR modes in Windows and automatically disable the clamp when in HDR (in progress)
 * Background operation ("minimize to tray") (partial)
 * Build a CLI assembly for users looking to automate operation (not started)
 * Port WPF app to WinUI 3 or create separate WinUI 3 version (not started)
