@@ -270,13 +270,13 @@ namespace novideo_srgb
                     }
                 }
 
-                if (seenTags != 6)
-                {
-                    throw new ICCProfileException("Missing required tags for curves + matrix profile");
-                }
-
                 if (!useCLUT)
                 {
+                    if (seenTags != 6)
+                    {
+                        throw new ICCProfileException("Missing required tags for curves + matrix profile");
+                    }
+
                     result.matrix = Colorimetry.XYZScaleToD50(result.matrix);
                 }
             }
