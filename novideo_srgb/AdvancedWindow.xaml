@@ -29,9 +29,10 @@
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                     <TextBlock VerticalAlignment="Center" Text="Target" />
                     <ComboBox SelectedIndex="{Binding Target}" Margin="6,0,0,0">
-                        <ComboBoxItem>sRGB/Rec.709</ComboBoxItem>
+                        <ComboBoxItem>sRGB/BT.709</ComboBoxItem>
                         <ComboBoxItem>Display P3</ComboBoxItem>
                         <ComboBoxItem>Adobe RGB</ComboBoxItem>
+                        <ComboBoxItem>BT.2020</ComboBoxItem>
                     </ComboBox>
                 </StackPanel>
                 <RadioButton IsChecked="{Binding UseEdid}" Margin="0,0,0, 6">
