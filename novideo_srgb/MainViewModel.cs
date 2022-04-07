@@ -21,7 +21,7 @@ namespace novideo_srgb
             UpdateMonitors();
         }
 
-        public void UpdateMonitors()
+        private void UpdateMonitors()
         {
             Monitors.Clear();
             List<XElement> config = null;
@@ -55,6 +55,11 @@ namespace novideo_srgb
 
                 Monitors.Add(monitor);
             }
+        }
+
+        public void OnDisplaySettingsChanged(object sender, EventArgs e)
+        {
+            UpdateMonitors();
         }
 
         public void SaveConfig()

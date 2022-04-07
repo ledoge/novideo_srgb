@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Windows;
+using Microsoft.Win32;
 
 namespace novideo_srgb
 {
@@ -12,6 +13,7 @@ namespace novideo_srgb
         {
             InitializeComponent();
             _viewModel = (MainViewModel)DataContext;
+            SystemEvents.DisplaySettingsChanged += _viewModel.OnDisplaySettingsChanged;
         }
 
         private void AboutButton_Click(object sender, RoutedEventArgs o)
@@ -21,11 +23,6 @@ namespace novideo_srgb
                 Owner = this
             };
             window.ShowDialog();
-        }
-
-        private void MonitorRefreshButton_Click(object sender, RoutedEventArgs e)
-        {
-            _viewModel.UpdateMonitors();
         }
 
         private void AdvancedButton_Click(object sender, RoutedEventArgs e)
