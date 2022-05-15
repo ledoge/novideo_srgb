@@ -36,7 +36,16 @@ namespace novideo_srgb
             if (window.ShowDialog() == false) return;
             if (window.ChangedCalibration)
             {
-                _viewModel.SaveConfig();
+                try
+                {
+                    _viewModel.SaveConfig();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message + "\n\nTry extracting the program elsewhere.");
+                    Environment.Exit(1);
+                }
+
                 monitor?.ReapplyClamp();
             }
 
