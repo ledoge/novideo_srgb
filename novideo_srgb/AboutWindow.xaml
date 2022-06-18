@@ -11,7 +11,7 @@
         SnapsToDevicePixels="True">
     <StackPanel Margin="6">
         <TextBlock FontSize="15" HorizontalAlignment="Center" TextAlignment="Center">
-            novideo_srgb v3.0 by ledoge
+            novideo_srgb v3.1 by ledoge
         </TextBlock>
         <TextBlock HorizontalAlignment="Center" TextAlignment="Center">
             Licensed under GPLv3 <LineBreak /> <LineBreak />
