@@ -19,17 +19,22 @@ namespace novideo_srgb
         private readonly GPUOutput _output;
         private bool _clamped;
 
-        public MonitorData(int number, Display display, uint id)
+        private MainViewModel _viewModel;
+
+        public MonitorData(MainViewModel viewModel, int number, Display display, string path, bool hdrActive, bool clampSdr)
         {
+            _viewModel = viewModel;
             Number = number;
             _output = display.Output;
 
-            Edid = Novideo.GetEDID(display);
+            Edid = Novideo.GetEDID(path, display);
 
             Name = Edid.Descriptors.OfType<StringDescriptor>()
                 .FirstOrDefault(x => x.Type == StringDescriptorType.MonitorName)?.Value ?? "<no name>";
 
-            ID = id;
+            Path = path;
+            ClampSdr = clampSdr;
+            HdrActive = hdrActive;
 
             var coords = Edid.DisplayParameters.ChromaticityCoordinates;
             EdidColorSpace = new Colorimetry.ColorSpace
@@ -47,9 +52,10 @@ namespace novideo_srgb
             CustomPercentage = 100;
         }
 
-        public MonitorData(int number, Display display, uint id, bool useIcc, string profilePath, bool calibrateGamma,
+        public MonitorData(MainViewModel viewModel, int number, Display display, string path, bool hdrActive, bool clampSdr, bool useIcc, string profilePath,
+            bool calibrateGamma,
             int selectedGamma, double customGamma, double customPercentage, int target, bool disableOptimization) :
-            this(number, display, id)
+            this(viewModel, number, display, path, hdrActive, clampSdr)
         {
             UseIcc = useIcc;
             ProfilePath = profilePath;
@@ -64,7 +70,9 @@ namespace novideo_srgb
         public int Number { get; }
         public string Name { get; }
         public EDID Edid { get; }
-        public uint ID { get; }
+        public string Path { get; }
+        public bool ClampSdr { get; set; }
+        public bool HdrActive { get; }
 
         private void UpdateClamp(bool doClamp)
         {
@@ -119,6 +127,13 @@ namespace novideo_srgb
             }
         }
 
+        private void HandleClampException(Exception e)
+        {
+            MessageBox.Show(e.Message);
+            _clamped = Novideo.IsColorSpaceConversionActive(_output);
+            OnPropertyChanged(nameof(Clamped));
+        }
+        
         public bool Clamped
         {
             set
@@ -126,13 +141,12 @@ namespace novideo_srgb
                 try
                 {
                     UpdateClamp(value);
+                    ClampSdr = value;
+                    _viewModel.SaveConfig();
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show(e.Message);
-                    _clamped = Novideo.IsColorSpaceConversionActive(_output);
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(CanClamp));
+                    HandleClampException(e);
                     return;
                 }
 
@@ -143,13 +157,20 @@ namespace novideo_srgb
 
         public void ReapplyClamp()
         {
-            Clamped = CanClamp && Clamped;
-
-            OnPropertyChanged(nameof(CanClamp));
-            OnPropertyChanged(nameof(Clamped));
+            try
+            {
+                var clamped = CanClamp && ClampSdr;
+                UpdateClamp(clamped);
+                _clamped = clamped;
+                OnPropertyChanged(nameof(CanClamp));
+            }
+            catch (Exception e)
+            {
+                HandleClampException(e);
+            }
         }
 
-        public bool CanClamp => UseEdid && !EdidColorSpace.Equals(TargetColorSpace) || UseIcc && ProfilePath != "";
+        public bool CanClamp => !HdrActive && (UseEdid && !EdidColorSpace.Equals(TargetColorSpace) || UseIcc && ProfilePath != "");
 
         public string GPU => _output.PhysicalGPU.FullName;
 

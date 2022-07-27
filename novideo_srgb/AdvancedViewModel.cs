@@ -160,7 +160,8 @@ namespace novideo_srgb
             get => _target;
         }
 
-        public Visibility EdidWarning => UseEdid && Colorimetry.ColorSpaces[_target].Equals(_monitor.EdidColorSpace)
+        public Visibility HdrWarning => _monitor.HdrActive ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility EdidWarning => HdrWarning != Visibility.Visible && UseEdid && Colorimetry.ColorSpaces[_target].Equals(_monitor.EdidColorSpace)
             ? Visibility.Visible
             : Visibility.Collapsed;
 

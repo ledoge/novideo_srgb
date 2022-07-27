@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -25,7 +26,7 @@ namespace novideo_srgb
         [DllImport("user32")]
         private static extern int DisplayConfigGetDeviceInfo(ref DISPLAYCONFIG_TARGET_DEVICE_NAME requestPacket);
 
-        public static DisplayHdrStatus GetDisplayHdrStatus()
+        public static HashSet<string> GetHdrDisplayPaths()
         {
             Action<int> check = (e) =>
             {
@@ -42,9 +43,9 @@ namespace novideo_srgb
 
             check(QueryDisplayConfig(QDC.QDC_ONLY_ACTIVE_PATHS, ref pathCount, paths, ref modeCount, modes, IntPtr.Zero));
 
-            var result = DisplayHdrStatus.Disabled;
+            var result = new HashSet<string>();
 
-            paths.ToList().ForEach(path =>
+            Array.ForEach(paths, path =>
             {
                 var displayInfo = new DISPLAYCONFIG_TARGET_DEVICE_NAME();
                 displayInfo.header.type = DISPLAYCONFIG_DEVICE_INFO_TYPE.DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME;
@@ -62,17 +63,14 @@ namespace novideo_srgb
 
                 check(DisplayConfigGetDeviceInfo(ref colorInfo));
 
-                result = colorInfo.advancedColorEnabled ? DisplayHdrStatus.Enabled : DisplayHdrStatus.Disabled;
+                if (colorInfo.advancedColorEnabled)
+                {
+                    result.Add(displayInfo.monitorDevicePath);
+                }
             });
 
             return result;
         }
-    }
-
-    public enum DisplayHdrStatus
-    {
-        Enabled,
-        Disabled
     }
 
     internal enum DISPLAYCONFIG_DEVICE_INFO_TYPE
@@ -374,7 +372,7 @@ namespace novideo_srgb
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
         public string monitorFriendlyDeviceName;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-        public string monitorDevicePat;
+        public string monitorDevicePath;
     }
 
     [StructLayout(LayoutKind.Sequential)]

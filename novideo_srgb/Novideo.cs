@@ -291,12 +291,10 @@ namespace novideo_srgb
             SetColorSpaceConversion(output, new ColorSpaceConversion { contentColorSpace = 2 });
         }
 
-        public static EDID GetEDID(Display display)
+        public static EDID GetEDID(string path, Display display)
         {
             try
             {
-                var displays = WindowsDisplayAPI.Display.GetDisplays();
-                var path = displays.First(x => x.DisplayName == display.Name).DevicePath;
                 var registryPath = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Enum\\DISPLAY\\";
                 registryPath += string.Join("\\", path.Split('#').Skip(1).Take(2));
                 return new EDID((byte[])Registry.GetValue(registryPath + "\\Device Parameters", "EDID", null));

@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Interop;
 
 namespace novideo_srgb
 {
@@ -38,19 +37,16 @@ namespace novideo_srgb
             {
                 Owner = this
             };
+
+            void CloseWindow(object o, EventArgs e2) => window.Close();
+
+            SystemEvents.DisplaySettingsChanged += CloseWindow;
             if (window.ShowDialog() == false) return;
+            SystemEvents.DisplaySettingsChanged -= CloseWindow;
+
             if (window.ChangedCalibration)
             {
-                try
-                {
-                    _viewModel.SaveConfig();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message + "\n\nTry extracting the program elsewhere.");
-                    Environment.Exit(1);
-                }
-
+                _viewModel.SaveConfig();
                 monitor?.ReapplyClamp();
             }
 
@@ -103,29 +99,11 @@ namespace novideo_srgb
         protected override void OnClosed(EventArgs e)
         {
             _trayIcon.Dispose();
-            SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
+            //SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
             base.OnClosed(e);
         }
 
-        private void OnDisplaySettingsChanged(object sender, EventArgs e)
-        {
-            /*
-             * TODO: This needs to work on a per-monitor basis.
-             * GetDisplayHdrStatus loops through all monitors and returns the result only for the last one.
-             * I'm not seeing an obvious way to tie monitor data grabbed from the Nvidia API to that gathered from the Windows API.
-             * Maybe investigate whether the Nvidia API can tell us whether HDR is enabled on a display?
-             * This might not be a problem, as I think Windows does not allow mixed SDR and HDR multi monitor configurations.
-            */
-            var hdrStatus = DisplayConfigManager.GetDisplayHdrStatus();
-            var clamp = hdrStatus == DisplayHdrStatus.Disabled ? true : false;
-
-            foreach (var monitor in _viewModel.Monitors)
-            {
-                monitor.Clamped = clamp;
-                monitor.ReapplyClamp();
-            }
-        }
-
+        /*
         protected override void OnSourceInitialized(EventArgs e)
         {
             SystemEvents.DisplaySettingsChanged += new EventHandler(OnDisplaySettingsChanged);
@@ -134,6 +112,7 @@ namespace novideo_srgb
             PowerBroadcastNotificationHelpers.RegisterPowerBroadcastNotification(handle, PowerSettingGuids.CONSOLE_DISPLAY_STATE);
             HwndSource.FromHwnd(handle)?.AddHook(HandleMessages);
         }
+        */
 
         private void ReapplyMonitorSettings()
         {
