@@ -4,13 +4,14 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
+using Application = System.Windows.Application;
 
 namespace novideo_srgb
 {
     public partial class MainWindow
     {
         private readonly MainViewModel _viewModel;
-        private System.Windows.Forms.NotifyIcon _trayIcon;
 
         public MainWindow()
         {
@@ -18,6 +19,16 @@ namespace novideo_srgb
             _viewModel = (MainViewModel)DataContext;
             SystemEvents.DisplaySettingsChanged += _viewModel.OnDisplaySettingsChanged;
             InitializeTrayIcon();
+        }
+
+        protected override void OnStateChanged(EventArgs e)
+        {
+            if (WindowState == WindowState.Minimized)
+            {
+                Hide();
+            }
+
+            base.OnStateChanged(e);
         }
 
         private void AboutButton_Click(object sender, RoutedEventArgs o)
@@ -57,50 +68,59 @@ namespace novideo_srgb
             }
         }
 
+        private void ReapplyButton_Click(object sender, RoutedEventArgs e)
+        {
+            ReapplyMonitorSettings();
+        }
+
         private async Task DeferAction(Action action, int seconds)
         {
             await Task.Delay(seconds);
             action();
         }
 
-        private IntPtr HandleMessages(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) => PowerBroadcastNotificationHelpers.HandleBroadcastNotification(msg, lParam, (message) =>
-        {
-            if (((char)message.Data) == (char)ConsoleDisplayState.TurnedOn)
+        private IntPtr HandleMessages(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) =>
+            PowerBroadcastNotificationHelpers.HandleBroadcastNotification(msg, lParam, (message) =>
             {
-                _ = DeferAction(ReapplyMonitorSettings, 150);
-            }
-        });
-
-        private void MinimizeToTray()
-        {
-            Hide();
-            ShowInTaskbar = false;
-        }
+                if (((char)message.Data) == (char)ConsoleDisplayState.TurnedOn)
+                {
+                    _ = DeferAction(ReapplyMonitorSettings, 150);
+                }
+            });
 
         private void InitializeTrayIcon()
         {
-            _trayIcon = new System.Windows.Forms.NotifyIcon
+            var notifyIcon = new NotifyIcon
             {
                 Text = "Novideo sRGB",
                 Icon = Properties.Resources.icon,
                 Visible = true
             };
 
-            _trayIcon.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
-            _trayIcon.ContextMenuStrip.Items.Add("Hide", null, TrayIcon_Hide_Click);
-            _trayIcon.ContextMenuStrip.Items.Add("Restore", null, TrayIcon_Restore_Click);
-            _trayIcon.ContextMenuStrip.Items.Add("Quit", null, TrayIcon_Quit_Click);
+            notifyIcon.MouseDoubleClick +=
+                delegate
+                {
+                    Show();
+                    WindowState = WindowState.Normal;
+                };
 
-            _trayIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(TrayIcon_DoubleClick);
-        }
+            var contextMenu = new ContextMenu();
 
-        private void MinimizeToTrayButton_Click(object sender, RoutedEventArgs e) => MinimizeToTray();
+            var reapplyItem = new MenuItem();
+            contextMenu.MenuItems.Add(reapplyItem);
+            reapplyItem.Text = "Reapply";
+            reapplyItem.Click += delegate { ReapplyMonitorSettings(); };
 
-        protected override void OnClosed(EventArgs e)
-        {
-            _trayIcon.Dispose();
-            //SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
-            base.OnClosed(e);
+            contextMenu.MenuItems.Add("-");
+
+            var exitItem = new MenuItem();
+            contextMenu.MenuItems.Add(exitItem);
+            exitItem.Text = "Exit";
+            exitItem.Click += delegate { Close(); };
+
+            notifyIcon.ContextMenu = contextMenu;
+
+            Closed += delegate { notifyIcon.Dispose(); };
         }
 
         /*
@@ -121,31 +141,5 @@ namespace novideo_srgb
                 monitor.ReapplyClamp();
             }
         }
-
-        private void Restore()
-        {
-            Show();
-            WindowState = WindowState.Normal;
-            ShowInTaskbar = true;
-            Activate();
-        }
-
-        private void TrayIcon_DoubleClick(object sender, EventArgs e)
-        {
-            if(ShowInTaskbar == false || WindowState == WindowState.Minimized)
-            {
-                Restore();
-            }
-            else
-            {
-                MinimizeToTray();
-            }
-        }
-
-        private void TrayIcon_Hide_Click(object sender, EventArgs e) => MinimizeToTray();
-
-        private void TrayIcon_Restore_Click(object sender, EventArgs e) => Restore();
-
-        private void TrayIcon_Quit_Click(object sender, EventArgs e) => Application.Current.Shutdown();
     }
 }

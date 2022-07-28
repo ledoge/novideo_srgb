@@ -14,8 +14,8 @@
         <Grid DockPanel.Dock="Bottom">
             <Button DockPanel.Dock="Bottom" Content="About" Width="75" HorizontalAlignment="Left"
                     Click="AboutButton_Click" />
-            <Button DockPanel.Dock="Bottom" Content="Hide" Width="75" HorizontalAlignment="Right"
-                    Click="MinimizeToTrayButton_Click" />
+            <Button DockPanel.Dock="Bottom" Content="Reapply" Width="75" HorizontalAlignment="Right"
+                    Click="ReapplyButton_Click" />
         </Grid>
         <DataGrid ItemsSource="{Binding Monitors}" RowHeaderWidth="0" AutoGenerateColumns="False"
                   DockPanel.Dock="Bottom" Margin="0,0,0,6" CanUserResizeColumns="False" CanUserSortColumns="False"
