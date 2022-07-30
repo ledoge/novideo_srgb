@@ -21,6 +21,12 @@ Extract `release.zip` somewhere under your user directory and run `novideo_srgb.
 * The option "Disable 8-bit color optimization" can be used to get better color accuracy in true 10-bit workflows at the cost of 8-bit accuracy. Only enable this if you really know you're working with 10-bit color.
 * Only the VCGT (if present), TRC and PCS matrix parts of an ICC profile are used. If present, the A2B1 data is used to calculate (hopefully) higher quality TRC and PCS matrix values.
 
+# HDR and automatic reapplying
+
+Any change in the display setup (such as a monitor being added/removed) will cause the clamp to be reapplied on all monitors, as long as the application is running in the background. The main purpose of this is to handle HDR being toggled in Windows, as the clamp will automatically be disabled for monitors for which HDR is enabled (since colors would get messed up otherwise). Additionally, you can use the "Reapply" button to manually reapply the clamp in case something breaks (e.g. due to a driver bug).
+
+Minimizing the GUI will hide it from the taskbar, so that it'll only be visible in the tray. If you want to run it on boot, e.g. via the `Startup` folder, you can use the `-minimize` command line argument to have it start up minimized.
+
 # Known issues
 
 * The color space transform does not get applied properly to the mouse cursor, which results in it having wrong gamma and colors. This should be hardly noticeable with the default Windows cursor. Workaround: Force software rendering of the cursor, e.g. using [SoftCursor](https://www.monitortests.com/forum/Thread-SoftCursor).
