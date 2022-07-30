@@ -131,6 +131,8 @@ namespace novideo_srgb
         {
             MessageBox.Show(e.Message);
             _clamped = Novideo.IsColorSpaceConversionActive(_output);
+            ClampSdr = _clamped;
+            _viewModel.SaveConfig();
             OnPropertyChanged(nameof(Clamped));
         }
         
