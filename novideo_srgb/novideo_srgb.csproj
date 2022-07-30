@@ -101,10 +101,6 @@
     <Compile Include="DisplayConfigManager.cs" />
     <Compile Include="Lut16.cs" />
     <Compile Include="DoubleToneCurve.cs" />
-    <Compile Include="PowerBroadcast\ConsoleDisplayState.cs" />
-    <Compile Include="PowerBroadcast\PowerBroadcastMessage.cs" />
-    <Compile Include="PowerBroadcast\PowerBroadcastNotificationHelpers.cs" />
-    <Compile Include="PowerBroadcast\PowerSettingGuids.cs" />
     <Compile Include="RangeRule.cs" />
     <Compile Include="GammaToneCurve.cs" />
     <Compile Include="ICCBinaryReader.cs" />

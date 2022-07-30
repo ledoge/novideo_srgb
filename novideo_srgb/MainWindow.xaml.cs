@@ -1,8 +1,6 @@
 ﻿using Microsoft.Win32;
-using novideo_srgb.PowerBroadcast;
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using Application = System.Windows.Application;
@@ -18,16 +16,16 @@ namespace novideo_srgb
             InitializeComponent();
             _viewModel = (MainViewModel)DataContext;
             SystemEvents.DisplaySettingsChanged += _viewModel.OnDisplaySettingsChanged;
-            
+
             var args = Environment.GetCommandLineArgs().ToList();
             args.RemoveAt(0);
-            
+
             if (args.Contains("-minimize"))
             {
                 WindowState = WindowState.Minimized;
                 Hide();
             }
-            
+
             InitializeTrayIcon();
         }
 
@@ -83,21 +81,6 @@ namespace novideo_srgb
             ReapplyMonitorSettings();
         }
 
-        private async Task DeferAction(Action action, int seconds)
-        {
-            await Task.Delay(seconds);
-            action();
-        }
-
-        private IntPtr HandleMessages(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) =>
-            PowerBroadcastNotificationHelpers.HandleBroadcastNotification(msg, lParam, (message) =>
-            {
-                if (((char)message.Data) == (char)ConsoleDisplayState.TurnedOn)
-                {
-                    _ = DeferAction(ReapplyMonitorSettings, 150);
-                }
-            });
-
         private void InitializeTrayIcon()
         {
             var notifyIcon = new NotifyIcon
@@ -132,17 +115,6 @@ namespace novideo_srgb
 
             Closed += delegate { notifyIcon.Dispose(); };
         }
-
-        /*
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            SystemEvents.DisplaySettingsChanged += new EventHandler(OnDisplaySettingsChanged);
-            base.OnSourceInitialized(e);
-            var handle = new WindowInteropHelper(this).Handle;
-            PowerBroadcastNotificationHelpers.RegisterPowerBroadcastNotification(handle, PowerSettingGuids.CONSOLE_DISPLAY_STATE);
-            HwndSource.FromHwnd(handle)?.AddHook(HandleMessages);
-        }
-        */
 
         private void ReapplyMonitorSettings()
         {
