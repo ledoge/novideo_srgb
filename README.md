@@ -8,6 +8,8 @@ ICC profiles are also supported and can be used in two different ways. By defaul
 # Usage
 Extract `release.zip` somewhere under your user directory and run `novideo_srgb.exe`. To enable/disable the sRGB clamp for a monitor, simply toggle the "Clamped" checkbox. For using ICC profiles and configuring dithering, click the "Advanced" button.
 
+Generally, the clamp should persist through reboots and driver updates. You can choose to leave the application running minimized in the background though – see the section "HDR and automatic reapplying" below. 
+
 # Notes for use with EDID data
 * If the checkbox for a monitor is locked, it means that the EDID is reporting the sRGB primaries as the monitor's primaries, so the monitor is either natively sRGB or uses an sRGB emulation mode by default. If this is not the case, complain to the manufacturer about the EDID being wrong, and try to find an ICC profile for your monitor to use instead of the EDID data.
 
