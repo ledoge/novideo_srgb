@@ -11,6 +11,8 @@ namespace novideo_srgb
     {
         private readonly MainViewModel _viewModel;
 
+        private ContextMenu _contextMenu;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -97,23 +99,40 @@ namespace novideo_srgb
                     WindowState = WindowState.Normal;
                 };
 
-            var contextMenu = new ContextMenu();
+            _contextMenu = new ContextMenu();
+
+            _contextMenu.Popup += delegate { UpdateContextMenu(); };
+
+            notifyIcon.ContextMenu = _contextMenu;
+
+            Closed += delegate { notifyIcon.Dispose(); };
+        }
+
+        private void UpdateContextMenu()
+        {
+            _contextMenu.MenuItems.Clear();
+
+            foreach (var monitor in _viewModel.Monitors)
+            {
+                var item = new MenuItem();
+                _contextMenu.MenuItems.Add(item);
+                item.Text = monitor.Name;
+                item.Checked = monitor.Clamped;
+                item.Enabled = monitor.CanClamp;
+                item.Click += (sender, args) => monitor.Clamped = !monitor.Clamped;
+            }
+
+            _contextMenu.MenuItems.Add("-");
 
             var reapplyItem = new MenuItem();
-            contextMenu.MenuItems.Add(reapplyItem);
+            _contextMenu.MenuItems.Add(reapplyItem);
             reapplyItem.Text = "Reapply";
             reapplyItem.Click += delegate { ReapplyMonitorSettings(); };
 
-            contextMenu.MenuItems.Add("-");
-
             var exitItem = new MenuItem();
-            contextMenu.MenuItems.Add(exitItem);
+            _contextMenu.MenuItems.Add(exitItem);
             exitItem.Text = "Exit";
             exitItem.Click += delegate { Close(); };
-
-            notifyIcon.ContextMenu = contextMenu;
-
-            Closed += delegate { notifyIcon.Dispose(); };
         }
 
         private void ReapplyMonitorSettings()

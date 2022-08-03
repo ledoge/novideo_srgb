@@ -153,6 +153,7 @@ namespace novideo_srgb
                 }
 
                 _clamped = value;
+                OnPropertyChanged();
             }
             get => _clamped;
         }
