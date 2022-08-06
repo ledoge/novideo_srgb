@@ -93,7 +93,7 @@
                             <Label Grid.Row="2" Grid.Column="4">y</Label>
                         </Grid>
                         <TextBlock TextWrapping="Wrap" Visibility="{Binding EdidWarning}" Foreground="Red">Primaries match target – cannot clamp</TextBlock>
-                        <TextBlock TextWrapping="Wrap" Visibility="{Binding HdrWarning}" Foreground="Red">HDR is enabled – cannot clamp</TextBlock>
+                        <TextBlock TextWrapping="Wrap" Visibility="{Binding HdrWarning}" Foreground="Red">HDR is active – cannot clamp</TextBlock>
                     </StackPanel>
                 </RadioButton>
                 <RadioButton IsChecked="{Binding UseIcc}" HorizontalContentAlignment="Stretch">
