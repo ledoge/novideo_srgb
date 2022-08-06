@@ -29,6 +29,11 @@ namespace novideo_srgb
             }
 
             InitializeTrayIcon();
+            
+            var dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+            dispatcherTimer.Tick += (sender, e) => CheckNvHdrChanged();
+            dispatcherTimer.Interval = new TimeSpan(0,0,1);
+            dispatcherTimer.Start();
         }
 
         protected override void OnStateChanged(EventArgs e)
@@ -137,10 +142,13 @@ namespace novideo_srgb
 
         private void ReapplyMonitorSettings()
         {
-            foreach (var monitor in _viewModel.Monitors)
-            {
-                monitor.ReapplyClamp();
-            }
+            _viewModel.OnDisplaySettingsChanged(null, null);
+        }
+
+        private void CheckNvHdrChanged()
+        {
+            if (_viewModel.Monitors.All(monitor => monitor.HdrActive == monitor.CheckHdrActive())) return;
+            _viewModel.OnDisplaySettingsChanged(null, null);
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using NvAPIWrapper.Display;
@@ -32,21 +31,17 @@ namespace novideo_srgb
                 config = XElement.Load(_configPath).Descendants("monitor").ToList();
             }
 
-            var hdrPaths = DisplayConfigManager.GetHdrDisplayPaths();
-            
             var number = 1;
             foreach (var display in Display.GetDisplays())
             {
                 var displays = WindowsDisplayAPI.Display.GetDisplays();
                 var path = displays.First(x => x.DisplayName == display.Name).DevicePath;
-
-                var hdrActive = hdrPaths.Contains(path);
                 
                 var settings = config?.FirstOrDefault(x => (string)x.Attribute("path") == path);
                 MonitorData monitor;
                 if (settings != null)
                 {
-                    monitor = new MonitorData(this, number++, display, path, hdrActive,
+                    monitor = new MonitorData(this, number++, display, path,
                         (bool)settings.Attribute("clamp_sdr"),
                         (bool)settings.Attribute("use_icc"),
                         (string)settings.Attribute("icc_path"),
@@ -59,12 +54,12 @@ namespace novideo_srgb
                 }
                 else
                 {
-                    monitor = new MonitorData(this, number++, display, path, hdrActive, false);
+                    monitor = new MonitorData(this, number++, display, path, false);
                 }
 
                 Monitors.Add(monitor);
             }
-            
+
             foreach (var monitor in Monitors)
             {
                 monitor.ReapplyClamp();
@@ -75,7 +70,7 @@ namespace novideo_srgb
         {
             UpdateMonitors();
         }
-        
+
         public void SaveConfig()
         {
             try
