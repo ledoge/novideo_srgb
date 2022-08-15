@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using Microsoft.Win32;
 using NvAPIWrapper.Display;
 
 namespace novideo_srgb
@@ -73,6 +74,12 @@ namespace novideo_srgb
         public void OnDisplaySettingsChanged(object sender, EventArgs e)
         {
             UpdateMonitors();
+        }
+
+        public void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
+        {
+            if (e.Mode != PowerModes.Resume) return;
+            OnDisplaySettingsChanged(null, null);
         }
 
         public void SaveConfig()

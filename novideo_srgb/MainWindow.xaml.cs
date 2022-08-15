@@ -18,6 +18,7 @@ namespace novideo_srgb
             InitializeComponent();
             _viewModel = (MainViewModel)DataContext;
             SystemEvents.DisplaySettingsChanged += _viewModel.OnDisplaySettingsChanged;
+            SystemEvents.PowerModeChanged += _viewModel.OnPowerModeChanged;
 
             var args = Environment.GetCommandLineArgs().ToList();
             args.RemoveAt(0);
