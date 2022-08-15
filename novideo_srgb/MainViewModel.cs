@@ -14,7 +14,6 @@ namespace novideo_srgb
         public ObservableCollection<MonitorData> Monitors { get; }
 
         private string _configPath;
-        private List<XElement> _unusedMonitors;
 
         public MainViewModel()
         {
@@ -32,20 +31,21 @@ namespace novideo_srgb
                 config = XElement.Load(_configPath).Descendants("monitor").ToList();
             }
 
+            var hdrPaths = DisplayConfigManager.GetHdrDisplayPaths();
+
             var number = 1;
             foreach (var display in Display.GetDisplays())
             {
                 var displays = WindowsDisplayAPI.Display.GetDisplays();
                 var path = displays.First(x => x.DisplayName == display.Name).DevicePath;
-                
-                var settings = config?.FirstOrDefault(x => (string)x.Attribute("path") == path);
 
+                var hdrActive = hdrPaths.Contains(path);
+
+                var settings = config?.FirstOrDefault(x => (string)x.Attribute("path") == path);
                 MonitorData monitor;
                 if (settings != null)
                 {
-                    config.Remove(settings);
-                    
-                    monitor = new MonitorData(this, number++, display, path,
+                    monitor = new MonitorData(this, number++, display, path, hdrActive,
                         (bool)settings.Attribute("clamp_sdr"),
                         (bool)settings.Attribute("use_icc"),
                         (string)settings.Attribute("icc_path"),
@@ -58,13 +58,11 @@ namespace novideo_srgb
                 }
                 else
                 {
-                    monitor = new MonitorData(this, number++, display, path, false);
+                    monitor = new MonitorData(this, number++, display, path, hdrActive, false);
                 }
 
                 Monitors.Add(monitor);
             }
-            
-            _unusedMonitors = config;
 
             foreach (var monitor in Monitors)
             {
@@ -93,7 +91,6 @@ namespace novideo_srgb
                             new XAttribute("custom_percentage", x.CustomPercentage),
                             new XAttribute("target", x.Target),
                             new XAttribute("disable_optimization", x.DisableOptimization))));
-                xElem.Add(_unusedMonitors);
                 xElem.Save(_configPath);
             }
             catch (Exception ex)

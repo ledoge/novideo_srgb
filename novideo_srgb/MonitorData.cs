@@ -9,7 +9,6 @@ using EDIDParser.Descriptors;
 using EDIDParser.Enums;
 using NvAPIWrapper.Display;
 using NvAPIWrapper.GPU;
-using NvAPIWrapper.Native.Display;
 
 namespace novideo_srgb
 {
@@ -17,18 +16,16 @@ namespace novideo_srgb
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private readonly Display _display;
         private readonly GPUOutput _output;
         private bool _clamped;
 
         private MainViewModel _viewModel;
 
-        public MonitorData(MainViewModel viewModel, int number, Display display, string path, bool clampSdr)
+        public MonitorData(MainViewModel viewModel, int number, Display display, string path, bool hdrActive, bool clampSdr)
         {
             _viewModel = viewModel;
             Number = number;
             _output = display.Output;
-            _display = display;
 
             Edid = Novideo.GetEDID(path, display);
 
@@ -37,7 +34,7 @@ namespace novideo_srgb
 
             Path = path;
             ClampSdr = clampSdr;
-            HdrActive = CheckHdrActive();
+            HdrActive = hdrActive;
 
             var coords = Edid.DisplayParameters.ChromaticityCoordinates;
             EdidColorSpace = new Colorimetry.ColorSpace
@@ -55,10 +52,10 @@ namespace novideo_srgb
             CustomPercentage = 100;
         }
 
-        public MonitorData(MainViewModel viewModel, int number, Display display, string path, bool clampSdr, bool useIcc, string profilePath,
+        public MonitorData(MainViewModel viewModel, int number, Display display, string path, bool hdrActive, bool clampSdr, bool useIcc, string profilePath,
             bool calibrateGamma,
             int selectedGamma, double customGamma, double customPercentage, int target, bool disableOptimization) :
-            this(viewModel, number, display, path, clampSdr)
+            this(viewModel, number, display, path, hdrActive, clampSdr)
         {
             UseIcc = useIcc;
             ProfilePath = profilePath;
@@ -76,13 +73,6 @@ namespace novideo_srgb
         public string Path { get; }
         public bool ClampSdr { get; set; }
         public bool HdrActive { get; }
-
-        public bool CheckHdrActive()
-        {
-            var nvHdr = _display.DisplayDevice.HDRColorData;
-
-            return !ReferenceEquals(nvHdr, null) && nvHdr.HDRMode != ColorDataHDRMode.Off;
-        }
 
         private void UpdateClamp(bool doClamp)
         {
