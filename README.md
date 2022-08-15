@@ -33,6 +33,8 @@ Minimizing the GUI will hide it from the taskbar, so that it'll only be visible 
 
 * The color space transform does not get applied properly to the mouse cursor, which results in it having wrong gamma and colors. This should be hardly noticeable with the default Windows cursor. Workaround: Force software rendering of the cursor, e.g. using [SoftCursor](https://www.monitortests.com/forum/Thread-SoftCursor).
 
+* Windows HDR is handled properly, but NVAPI HDR, which some applications use to output HDR even though Windows HDR is off, will result in wrong colors while the clamp is active. To work around this, you can either enable Windows HDR or disable the clamp manually before launching such applications.
+
 # Dithering
 
 Applying any kind of calibration on the GPU-level usually results in banding unless dithering is used. By default, NVIDIA GPUs do not apply dithering to full range RGB output. Therefore, it is recommended that you use the dither controls to enable and configure dithering. "Bits" should be set to match the bit depth of your GPU output, and "Mode" can be set to whatever looks best to you. Note that "Temporal" works by rapidly switching between colors, which some people's eyes are sensitive to.
