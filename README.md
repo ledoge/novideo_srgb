@@ -27,7 +27,7 @@ Generally, the clamp should persist through reboots and driver updates, but it c
 
 Any change in the display setup (such as a monitor being added/removed) will cause the clamp to be reapplied on all monitors, as long as the application is running in the background. The main purpose of this is to handle HDR being toggled in Windows, as the clamp will automatically be disabled for monitors for which HDR is enabled (since colors would get messed up otherwise). Additionally, you can use the "Reapply" button to manually reapply the clamp in case something breaks (e.g. due to a driver bug).
 
-Minimizing the GUI will hide it from the taskbar, so that it'll only be visible in the tray. If you want to run it on boot, e.g. via the `Startup` folder, you can use the `-minimize` command line argument to have it start up minimized.
+Minimizing the GUI will hide it from the taskbar, so that it'll only be visible in the tray. If you want to run it on boot, you can enable the "Run at startup" checkbox, which will use the `-minimize` command line argument to make it start minimized.
 
 # Known issues
 
