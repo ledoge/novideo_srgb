@@ -16,11 +16,52 @@ namespace novideo_srgb
 
         private string _configPath;
 
+        private string _startupName;
+        private RegistryKey _startupKey;
+        private string _startupValue;
+
         public MainViewModel()
         {
             Monitors = new ObservableCollection<MonitorData>();
             _configPath = AppDomain.CurrentDomain.BaseDirectory + "config.xml";
+
+            _startupName = "novideo_srgb";
+            _startupKey = Registry.CurrentUser.OpenSubKey
+                ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+            _startupValue = Application.ExecutablePath + " -minimize";
+
             UpdateMonitors();
+        }
+
+        public bool? RunAtStartup
+        {
+            get
+            {
+                var keyValue = _startupKey.GetValue(_startupName);
+
+                if (keyValue == null)
+                {
+                    return false;
+                }
+
+                if ((string)keyValue == _startupValue)
+                {
+                    return true;
+                }
+
+                return null;
+            }
+            set
+            {
+                if (value == true)
+                {
+                    _startupKey.SetValue(_startupName, _startupValue);
+                }
+                else
+                {
+                    _startupKey.DeleteValue(_startupName);
+                }
+            }
         }
 
         private void UpdateMonitors()

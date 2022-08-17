@@ -14,8 +14,12 @@
         <Grid DockPanel.Dock="Bottom">
             <Button DockPanel.Dock="Bottom" Content="About" Width="75" HorizontalAlignment="Left"
                     Click="AboutButton_Click" />
-            <Button DockPanel.Dock="Bottom" Content="Reapply" Width="75" HorizontalAlignment="Right"
-                    Click="ReapplyButton_Click" />
+            <WrapPanel DockPanel.Dock="Bottom" HorizontalAlignment="Right">
+                <CheckBox Content="Run at startup" IsThreeState="true" IsChecked="{Binding RunAtStartup}"
+                          VerticalAlignment="Center" Margin="0,0,6,0">
+                </CheckBox>
+                <Button Content="Reapply" Width="75" Click="ReapplyButton_Click" />
+            </WrapPanel>
         </Grid>
         <DataGrid ItemsSource="{Binding Monitors}" RowHeaderWidth="0" AutoGenerateColumns="False"
                   DockPanel.Dock="Bottom" Margin="0,0,0,6" CanUserResizeColumns="False" CanUserSortColumns="False"
