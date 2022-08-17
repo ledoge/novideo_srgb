@@ -1,9 +1,11 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
 using Application = System.Windows.Application;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace novideo_srgb
 {
@@ -15,6 +17,13 @@ namespace novideo_srgb
 
         public MainWindow()
         {
+            if (Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName).Length > 1)
+            {
+                MessageBox.Show("Already running!");
+                Close();
+                return;
+            }
+
             InitializeComponent();
             _viewModel = (MainViewModel)DataContext;
             SystemEvents.DisplaySettingsChanged += _viewModel.OnDisplaySettingsChanged;
