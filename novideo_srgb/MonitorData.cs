@@ -114,6 +114,9 @@ namespace novideo_srgb
                         case 3:
                             gamma = new GammaToneCurve(CustomGamma, black, CustomPercentage / 100, true);
                             break;
+                        case 4:
+                            gamma = new LstarEOTF(black);
+                            break;
                         default:
                             throw new NotSupportedException("Unsupported gamma type " + SelectedGamma);
                     }

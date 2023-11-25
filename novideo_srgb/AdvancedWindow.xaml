@@ -119,6 +119,7 @@
                                 <ComboBoxItem>BT.1886</ComboBoxItem>
                                 <ComboBoxItem>Absolute</ComboBoxItem>
                                 <ComboBoxItem>Relative</ComboBoxItem>
+                                <ComboBoxItem>L*</ComboBoxItem>
                             </ComboBox>
                             <TextBox IsEnabled="{Binding CalibrateGamma}"
                                      Visibility="{Binding UseCustomGamma, Mode=OneWay}"

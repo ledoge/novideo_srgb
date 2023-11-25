@@ -99,6 +99,7 @@
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="DisplayConfigManager.cs" />
+    <Compile Include="LstarEOTF.cs" />
     <Compile Include="Lut16.cs" />
     <Compile Include="DoubleToneCurve.cs" />
     <Compile Include="RangeRule.cs" />
