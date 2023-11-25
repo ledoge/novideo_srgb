@@ -283,7 +283,17 @@ namespace novideo_srgb
 
         public static bool IsColorSpaceConversionActive(GPUOutput output)
         {
-            return GetColorSpaceConversion(output).monitorColorSpace != 0;
+            var csc = GetColorSpaceConversion(output);
+            switch (csc.monitorColorSpace)
+            {
+                // default GPU driver state or explicitly disabled
+                case 0:
+                // unity HDR output
+                case 12 when csc.contentColorSpace == 12 && csc.matrix1 == null && csc.matrix2 == null:
+                    return false;
+                default:
+                    return true;
+            }
         }
 
         public static void DisableColorSpaceConversion(GPUOutput output)
