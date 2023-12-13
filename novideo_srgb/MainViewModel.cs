@@ -164,8 +164,8 @@ namespace novideo_srgb
                                 new XAttribute("custom_gamma", monitor.CustomGamma),
                                 new XAttribute("custom_percentage", monitor.CustomPercentage),
                                 new XAttribute("target", monitor.Target),
-                                new XAttribute("disable_optimization", monitor.DisableOptimization)),
-                                new XAttribute("ignore", monitor.Ignore));
+                                new XAttribute("disable_optimization", monitor.DisableOptimization),
+                                new XAttribute("ignore", monitor.Ignore)));
                         }
                     }
                     monitors.Save(_configPath);
