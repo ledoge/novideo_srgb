@@ -10,6 +10,12 @@ namespace novideo_srgb
         public AdvancedWindow(MonitorData monitor)
         {
             var dither = monitor.DitherControl;
+            var bitDepth = monitor.BitDepth;
+            if (bitDepth != 0 && dither.state == 0 && dither.mode == 0 && dither.bits == 0)
+            {
+                dither.mode = 4;
+                dither.bits = bitDepth == 8 ? 1 : 2;
+            }
             _viewModel = new AdvancedViewModel(monitor, dither);
             DataContext = _viewModel;
             InitializeComponent();

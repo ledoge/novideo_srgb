@@ -181,7 +181,7 @@
                 <ComboBox IsEnabled="{Binding CustomDither}" SelectedIndex="{Binding DitherMode}" Name="DitherMode"
                           VerticalAlignment="Center" Grid.Row="1"
                           Grid.Column="1">
-                    <ComboBoxItem IsEnabled="False">SpatialDynamic</ComboBoxItem>
+                    <ComboBoxItem>SpatialDynamic</ComboBoxItem>
                     <ComboBoxItem>SpatialStatic</ComboBoxItem>
                     <ComboBoxItem>SpatialDynamic2x2</ComboBoxItem>
                     <ComboBoxItem>SpatialStatic2x2</ComboBoxItem>
