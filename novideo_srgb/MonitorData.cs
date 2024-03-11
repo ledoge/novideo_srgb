@@ -30,19 +30,24 @@ namespace novideo_srgb
             Number = number;
             _output = display.Output;
 
-            var bitDepth = display.DisplayDevice.CurrentColorData.ColorDepth;
-            if (bitDepth == ColorDataDepth.BPC6)
-                _bitDepth = 6;
-            else if (bitDepth == ColorDataDepth.BPC8)
-                _bitDepth = 8;
-            else if (bitDepth == ColorDataDepth.BPC10)
-                _bitDepth = 10;
-            else if (bitDepth == ColorDataDepth.BPC12)
-                _bitDepth = 12;
-            else if (bitDepth == ColorDataDepth.BPC16)
-                _bitDepth = 16;
-            else
-                _bitDepth = 0;
+            _bitDepth = 0;
+            try
+            {
+                var bitDepth = display.DisplayDevice.CurrentColorData.ColorDepth;
+                if (bitDepth == ColorDataDepth.BPC6)
+                    _bitDepth = 6;
+                else if (bitDepth == ColorDataDepth.BPC8)
+                    _bitDepth = 8;
+                else if (bitDepth == ColorDataDepth.BPC10)
+                    _bitDepth = 10;
+                else if (bitDepth == ColorDataDepth.BPC12)
+                    _bitDepth = 12;
+                else if (bitDepth == ColorDataDepth.BPC16)
+                    _bitDepth = 16;
+            }
+            catch (Exception)
+            {
+            }
 
             Edid = Novideo.GetEDID(path, display);
 
