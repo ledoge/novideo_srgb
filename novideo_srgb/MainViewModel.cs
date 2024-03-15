@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using Microsoft.Win32;
@@ -12,6 +13,7 @@ namespace novideo_srgb
 {
     public class MainViewModel
     {
+        private static SemaphoreSlim _lockSemaphoreSlim = new SemaphoreSlim(1, 1);
         public ObservableCollection<MonitorData> Monitors { get; }
 
         private string _configPath;
@@ -132,10 +134,9 @@ namespace novideo_srgb
 
         public void SaveConfig()
         {
-            var _saveLock = new object();
             try
             {
-                lock(_saveLock)
+                if(_lockSemaphoreSlim.Wait(100))
                 {
                     if (File.Exists(_configPath))
                     {
