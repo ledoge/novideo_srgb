@@ -155,6 +155,15 @@
                         <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
                             <CheckBox IsChecked="{Binding DisableOptimization}" VerticalAlignment="Center">Disable 8-bit color optimization</CheckBox>
                         </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                            <TextBlock>Disable when</TextBlock>
+                            <TextBox VerticalContentAlignment="Center" 
+                                     Width="90" 
+                                     Margin="6,0,0,0"
+                                     Text="{Binding Ignore}">
+                            </TextBox>
+                            <TextBlock Margin="6,0,0,0"> is active</TextBlock>
+                        </StackPanel>
                     </StackPanel>
                 </RadioButton>
             </StackPanel>

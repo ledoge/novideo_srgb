@@ -178,7 +178,18 @@ namespace novideo_srgb
             var status = NvAPI_GPU_SetColorSpaceConversion(displayId, ref csc);
             if (status != 0)
             {
-                throw new Exception("NvAPI_GPU_SetColorSpaceConversion failed with error code " + status);
+                if (status == -104)
+                {
+                    if (!_alerted)
+                    {
+                        System.Windows.Forms.MessageBox.Show("Please disable clamp before enable HDR, for more information, see #71 issue.\r\nThis warning won't show again until next launch", "novideo_srgb");
+                        _alerted = true;
+                    }
+                }
+                else
+                {
+                    throw new Exception("NvAPI_GPU_SetColorSpaceConversion failed with error code " + status);
+                }
             }
         }
 
@@ -276,7 +287,18 @@ namespace novideo_srgb
                 var status = NvAPI_GPU_SetColorSpaceConversion(displayId, ref csc);
                 if (status != 0)
                 {
-                    throw new Exception("NvAPI_GPU_SetColorSpaceConversion failed with error code " + status);
+                    if (status == -104)
+                    {
+                        if (!_alerted)
+                        {
+                            System.Windows.Forms.MessageBox.Show("Please disable clamp before enable HDR, for more information, see #71 issue.\r\nThis warning won't show again until next launch", "novideo_srgb");
+                            _alerted = true;
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("NvAPI_GPU_SetColorSpaceConversion failed with error code " + status);
+                    }
                 }
             }
         }
@@ -336,7 +358,7 @@ namespace novideo_srgb
         public static DitherControl GetDitherControl(GPUOutput output)
         {
             var dither = new Dither
-                { version = 0x10018 };
+            { version = 0x10018 };
             var status = NvAPI_GPU_GetDitherControl(output.PhysicalGPU.GetDisplayDeviceByOutput(output).DisplayId,
                 ref dither);
             if (status != 0)
@@ -371,5 +393,7 @@ namespace novideo_srgb
                 Marshal.GetDelegateForFunctionPointer<NvAPI_GPU_SetDitherControl_t>(
                     NvAPI_QueryInterface(_NvAPI_GPU_SetDitherControl));
         }
+#warning Remove this after #71 was fixed
+        private static bool _alerted = false;
     }
 }

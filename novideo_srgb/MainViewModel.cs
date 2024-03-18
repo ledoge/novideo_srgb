@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using Microsoft.Win32;
@@ -12,6 +13,7 @@ namespace novideo_srgb
 {
     public class MainViewModel
     {
+        private readonly static SemaphoreSlim _saveSemaphoreSlim = new SemaphoreSlim(1, 1);
         public ObservableCollection<MonitorData> Monitors { get; }
 
         private string _configPath;
@@ -96,7 +98,8 @@ namespace novideo_srgb
                         (double)settings.Attribute("custom_gamma"),
                         (double)settings.Attribute("custom_percentage"),
                         (int)settings.Attribute("target"),
-                        (bool)settings.Attribute("disable_optimization"));
+                        (bool)settings.Attribute("disable_optimization"),
+                        (string)settings.Attribute("ignore"));
                 }
                 else
                 {
@@ -114,7 +117,13 @@ namespace novideo_srgb
 
         public void OnDisplaySettingsChanged(object sender, EventArgs e)
         {
-            UpdateMonitors();
+            try
+            {
+                UpdateMonitors();
+            }
+            catch
+            {
+            }
         }
 
         public void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
@@ -127,19 +136,63 @@ namespace novideo_srgb
         {
             try
             {
-                var xElem = new XElement("monitors",
-                    Monitors.Select(x =>
-                        new XElement("monitor", new XAttribute("path", x.Path),
-                            new XAttribute("clamp_sdr", x.ClampSdr),
-                            new XAttribute("use_icc", x.UseIcc),
-                            new XAttribute("icc_path", x.ProfilePath),
-                            new XAttribute("calibrate_gamma", x.CalibrateGamma),
-                            new XAttribute("selected_gamma", x.SelectedGamma),
-                            new XAttribute("custom_gamma", x.CustomGamma),
-                            new XAttribute("custom_percentage", x.CustomPercentage),
-                            new XAttribute("target", x.Target),
-                            new XAttribute("disable_optimization", x.DisableOptimization))));
-                xElem.Save(_configPath);
+                if(_saveSemaphoreSlim.Wait(100))
+                {
+                    if (File.Exists(_configPath))
+                    {
+                        var monitors = XElement.Load(_configPath);
+                        foreach (var monitor in Monitors)
+                        {
+                            var current = monitors.Elements().FirstOrDefault(x => x.Attribute("path").Value == monitor.Path);
+                            if (current != default) // If current exist in config, update
+                            {
+                                current.SetAttributeValue("clamp_sdr", monitor.ClampSdr);
+                                current.SetAttributeValue("use_icc", monitor.UseIcc);
+                                current.SetAttributeValue("icc_path", monitor.ProfilePath);
+                                current.SetAttributeValue("calibrate_gamma", monitor.CalibrateGamma);
+                                current.SetAttributeValue("selected_gamma", monitor.SelectedGamma);
+                                current.SetAttributeValue("custom_gamma", monitor.CustomGamma);
+                                current.SetAttributeValue("custom_percentage", monitor.CustomPercentage);
+                                current.SetAttributeValue("target", monitor.Target);
+                                current.SetAttributeValue("disable_optimization", monitor.DisableOptimization);
+                                current.SetAttributeValue("ignore", monitor.Ignore);
+                            }
+                            else // otherwise, add
+                            {
+                                monitors.Add(new XElement("monitor", new XAttribute("path", monitor.Path),
+                                    new XAttribute("clamp_sdr", monitor.ClampSdr),
+                                    new XAttribute("use_icc", monitor.UseIcc),
+                                    new XAttribute("icc_path", monitor.ProfilePath),
+                                    new XAttribute("calibrate_gamma", monitor.CalibrateGamma),
+                                    new XAttribute("selected_gamma", monitor.SelectedGamma),
+                                    new XAttribute("custom_gamma", monitor.CustomGamma),
+                                    new XAttribute("custom_percentage", monitor.CustomPercentage),
+                                    new XAttribute("target", monitor.Target),
+                                    new XAttribute("disable_optimization", monitor.DisableOptimization),
+                                    new XAttribute("ignore", monitor.Ignore)));
+                            }
+                        }
+                        monitors.Save(_configPath);
+                    }
+                    else
+                    {
+                        var xElem = new XElement("monitors",
+                            Monitors.Select(x =>
+                                new XElement("monitor", new XAttribute("path", x.Path),
+                                    new XAttribute("clamp_sdr", x.ClampSdr),
+                                    new XAttribute("use_icc", x.UseIcc),
+                                    new XAttribute("icc_path", x.ProfilePath),
+                                    new XAttribute("calibrate_gamma", x.CalibrateGamma),
+                                    new XAttribute("selected_gamma", x.SelectedGamma),
+                                    new XAttribute("custom_gamma", x.CustomGamma),
+                                    new XAttribute("custom_percentage", x.CustomPercentage),
+                                    new XAttribute("target", x.Target),
+                                    new XAttribute("disable_optimization", x.DisableOptimization),
+                                    new XAttribute("ignore", x.Ignore))));
+                        xElem.Save(_configPath);
+                    }
+                    _saveSemaphoreSlim.Release();
+                }
             }
             catch (Exception ex)
             {

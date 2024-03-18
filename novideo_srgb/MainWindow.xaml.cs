@@ -28,6 +28,13 @@ namespace novideo_srgb
             _viewModel = (MainViewModel)DataContext;
             SystemEvents.DisplaySettingsChanged += _viewModel.OnDisplaySettingsChanged;
             SystemEvents.PowerModeChanged += _viewModel.OnPowerModeChanged;
+            Closed += delegate
+            {
+                // https://learn.microsoft.com/en-us/dotnet/api/microsoft.win32.systemevents.displaysettingschanged
+                // Because this is a static event, you must detach your event handlers when your application is disposed, or memory leaks will result.
+                SystemEvents.DisplaySettingsChanged -= _viewModel.OnDisplaySettingsChanged;
+                SystemEvents.PowerModeChanged -= _viewModel.OnPowerModeChanged;
+            };
 
             var args = Environment.GetCommandLineArgs().ToList();
             args.RemoveAt(0);

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using EDIDParser;
 using EDIDParser.Descriptors;
@@ -23,6 +26,14 @@ namespace novideo_srgb
         private Novideo.DitherControl _dither;
 
         private MainViewModel _viewModel;
+
+        // https://stackoverflow.com/questions/647270/how-to-refresh-the-windows-desktop-programmatically-i-e-f5-from-c
+        [System.Runtime.InteropServices.DllImport("Shell32.dll")]
+        private static extern int SHChangeNotify(int eventId, int flags, IntPtr item1, IntPtr item2);
+        // https://stackoverflow.com/questions/2655944/determine-if-a-window-is-visible-or-not-using-c-sharp
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool IsWindowVisible(IntPtr hWnd);
 
         public MonitorData(MainViewModel viewModel, int number, Display display, string path, bool hdrActive, bool clampSdr)
         {
@@ -73,11 +84,65 @@ namespace novideo_srgb
             ProfilePath = "";
             CustomGamma = 2.2;
             CustomPercentage = 100;
+            Ignore = "";
+
+            _ = Task.Run(async () =>
+            {
+                while (true)
+                {
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(Ignore) && Clamped)
+                        {
+                            var split = Ignore.Split('\\');
+                            if (split.Length > 0)
+                            {
+                                var process = split.SelectMany(x => Process.GetProcessesByName(x));
+                                if (process.Any())
+                                {
+                                    foreach (var p in process.Where(x => IsWindowVisible(x.MainWindowHandle)))
+                                    {
+                                        var deviceName = System.Windows.Forms.Screen.FromHandle(p.MainWindowHandle).DeviceName;
+                                        var devicePath = WindowsDisplayAPI.Display.GetDisplays().First(x => x.DisplayName == deviceName).DevicePath;
+                                        if (Path == devicePath)
+                                        {
+                                            Clamped = false;
+                                            p.Exited += ReclampOnExit;
+                                            while (!p.HasExited)
+                                            {
+                                                var dn = System.Windows.Forms.Screen.FromHandle(p.MainWindowHandle).DeviceName;
+                                                // Moved to another monitor without closing
+                                                if (deviceName != dn)
+                                                {
+                                                    // Restore(reappply)
+                                                    Clamped = true;
+                                                    p.Exited -= ReclampOnExit;
+                                                    break;
+                                                }
+                                                await Task.Delay(1000);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        await Task.Delay(1000);
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show(e.ToString());
+                    }
+                }
+                void ReclampOnExit(object sender, EventArgs e)
+                {
+                    Clamped = true;
+                }
+            });
         }
 
         public MonitorData(MainViewModel viewModel, int number, Display display, string path, bool hdrActive, bool clampSdr, bool useIcc, string profilePath,
             bool calibrateGamma,
-            int selectedGamma, double customGamma, double customPercentage, int target, bool disableOptimization) :
+            int selectedGamma, double customGamma, double customPercentage, int target, bool disableOptimization, string ignore) :
             this(viewModel, number, display, path, hdrActive, clampSdr)
         {
             UseIcc = useIcc;
@@ -88,6 +153,7 @@ namespace novideo_srgb
             CustomPercentage = customPercentage;
             Target = target;
             DisableOptimization = disableOptimization;
+            Ignore = ignore;
         }
 
         public int Number { get; }
@@ -151,6 +217,7 @@ namespace novideo_srgb
                     Novideo.SetColorSpaceConversion(_output, profile, TargetColorSpace);
                 }
             }
+            SHChangeNotify(0x8000000, 0x1000, IntPtr.Zero, IntPtr.Zero);
         }
 
         private void HandleClampException(Exception e)
@@ -161,7 +228,7 @@ namespace novideo_srgb
             _viewModel.SaveConfig();
             OnPropertyChanged(nameof(Clamped));
         }
-        
+
         public bool Clamped
         {
             set
@@ -222,6 +289,7 @@ namespace novideo_srgb
         public double CustomPercentage { set; get; }
 
         public bool DisableOptimization { set; get; }
+        public string Ignore { set; get; }
 
         public int Target { set; get; }
 
