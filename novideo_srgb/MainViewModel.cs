@@ -13,7 +13,7 @@ namespace novideo_srgb
 {
     public class MainViewModel
     {
-        private static SemaphoreSlim _lockSemaphoreSlim = new SemaphoreSlim(1, 1);
+        private readonly static SemaphoreSlim _saveSemaphoreSlim = new SemaphoreSlim(1, 1);
         public ObservableCollection<MonitorData> Monitors { get; }
 
         private string _configPath;
@@ -136,7 +136,7 @@ namespace novideo_srgb
         {
             try
             {
-                if(_lockSemaphoreSlim.Wait(100))
+                if(_saveSemaphoreSlim.Wait(100))
                 {
                     if (File.Exists(_configPath))
                     {
@@ -191,6 +191,7 @@ namespace novideo_srgb
                                     new XAttribute("ignore", x.Ignore))));
                         xElem.Save(_configPath);
                     }
+                    _saveSemaphoreSlim.Release();
                 }
             }
             catch (Exception ex)
